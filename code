@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>イトー市・タクボクエストⅱ ～欠如した説明責任とカオスの中で～</title>
+    <!-- Chosen Palette: Retro RPG Blue -->
+    <!-- Application Structure Plan: A 5-chapter narrative SPA designed as a retro JRPG. This structure was chosen to make a complex political conflict engaging. The user journey begins with selecting a 'citizen' stance, which personalizes the experience by setting an initial 'Trust Gauge'. A new character introduction section deepens the narrative. The core of the application is Chapter 3, a 'Command Battle' UI, which directly addresses the user's request to emphasize the mayor-council conflict. This turn-based simulation visualizes their escalating actions and reactions, making the abstract political struggle tangible and exciting. The flow concludes with a choice-driven scenario exploration, solidifying the user's understanding of the stakes. -->
+    <!-- Visualization & Content Choices: 
+- Character Profiles: Goal: Narrative Depth. Method: Styled HTML cards. Interaction: Reading. Justification: Introduces the main actors with RPG-style names and attributes, setting the stage for the conflict.
+- Municipal Trust Gauge: Goal: Empathy/Tracking. Method: HTML/CSS progress bar. Interaction: Updates based on player choice and key events. Justification: Visually represents the central theme of 'trust'.
+- Command Battle UI: Goal: Experience Conflict. Method: Dynamic HTML/CSS layout. Interaction: Automated, turn-based display of actions from a predefined script. Justification: The most direct and engaging way to fulfill the user's core requirement of highlighting the mayor vs. council showdown.
+- Grid-based Info Cards (Timeline/Issues): Goal: Inform (Background). Method: Styled HTML grid. Interaction: Reading. Justification: Replaces simple lists with a more visually organized and engaging card layout, improving readability. Two new 'issue' cards were added to replace the deleted chart, deepening the political context.
+-->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP:wght@400;700&family=RocknRoll+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #00000a;
+            --bg-window: #0c0c34;
+            --bg-card: #1a1a4a;
+            --text-main: #f0f0ff;
+            --text-highlight: #ffff88;
+            --border-color: #ffffff;
+            --hp-bar-bg: #4a5568;
+            --hp-bar-fill: #48bb78;
+            --trust-bar-fill: #4299e1;
+            --damage-color: #f56565;
+            --heal-color: #68d391;
+            --font-pixel: 'DotGothic16', monospace;
+            --font-sans: 'Noto Sans JP', sans-serif;
+            --font-impact: 'RocknRoll One', sans-serif;
+        }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+        }
+        .pixel-font { font-family: var(--font-pixel); }
+        .game-window {
+            background-color: var(--bg-window);
+            border: 2px solid var(--border-color);
+            border-radius: 0;
+            padding: 1.5rem;
+            box-shadow: 0 0 0 4px var(--bg-window);
+        }
+        .text-window {
+            border: 2px solid var(--border-color);
+            padding: 1rem;
+            min-height: 6rem;
+        }
+        .fade-in { animation: fadeIn 0.8s ease-in-out forwards; opacity: 0; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .damage-animation { animation: flashRed 0.5s; }
+        @keyframes flashRed { 0%, 100% { background-color: transparent; } 50% { background-color: var(--damage-color); } }
+        .heal-animation { animation: flashGreen 0.5s; }
+        @keyframes flashGreen { 0%, 100% { background-color: transparent; } 50% { background-color: var(--heal-color); } }
+        .stance-btn[aria-selected="true"] {
+            outline: 3px solid var(--text-highlight);
+            transform: scale(1.05);
+            background-color: #2c2c64;
+        }
+        .progress-bar { background-color: var(--hp-bar-bg); border: 1px solid var(--border-color); }
+        .progress-bar-inner { transition: width 0.5s ease-in-out; }
+        .screen-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .attack-icon {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0;
+            z-index: 10;
+        }
+        .attack-anim-council { animation: attack-right 1.5s ease-out forwards; }
+        .attack-anim-mayor { animation: attack-left 1.5s ease-out forwards; }
+        @keyframes attack-right {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            99% { transform: translate(200%, 0) scale(1.5); opacity: 1; }
+            100% { transform: translate(200%, 0) scale(1.5); opacity: 0; }
+        }
+        @keyframes attack-left {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            99% { transform: translate(-200%, 0) scale(1.5); opacity: 1; }
+            100% { transform: translate(-200%, 0) scale(1.5); opacity: 0; }
+        }
+        .ending-visual-sunset {
+            width: 80px; height: 40px; background: linear-gradient(to top, #ffcc00, #ff6600, #330033);
+            border-radius: 40px 40px 0 0; margin: 0 auto 1rem;
+            animation: sunset 4s ease-in-out forwards;
+        }
+        @keyframes sunset { from { transform: translateY(0); } to { transform: translateY(20px); opacity: 0; } }
+        .ending-visual-sprout {
+            font-size: 3rem;
+            animation: sprout 3s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes sprout {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .dialogue-bubble {
+            max-width: 85%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .dialogue-bubble-left {
+            background-color: #2c2c64;
+            margin-right: auto;
+        }
+        .dialogue-bubble-right {
+            background-color: #4a2c64;
+            margin-left: auto;
+        }
+        .dialogue-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .typing-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1em;
+            background-color: var(--text-main);
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+       
+        .dialogue-wrapper {
+            opacity: 0;
+        }
+        .dialogue-wrapper.slide-in-left {
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+        .dialogue-wrapper.slide-in-right {
+            animation: slideInRight 0.5s ease-out forwards;
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .sunrise-title {
+            font-family: var(--font-impact);
+            font-weight: bold;
+            background: linear-gradient(to top, #c471ed, #f64f59, #fef08a 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 100% 250%;
+            background-position: 50% 100%;
+            transform: translateY(100%);
+            opacity: 0;
+            animation: 
+                sunrise-color-anim 5s 1.5s ease-out forwards,
+                sunrise-rise-anim 5s 1.5s ease-out forwards;
+        }
+        @keyframes sunrise-color-anim {
+            to { background-position: 50% 0%; }
+        }
+        @keyframes sunrise-rise-anim {
+            to { transform: translateY(0); opacity: 1;}
+        }
+       
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .stagger-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .flow-node, .flow-arrow, .flow-path-item {
+            transition: background-color 0.5s, border-color 0.5s, color 0.5s;
+        }
+        .flow-path-item.highlighted {
+            background-color: var(--text-highlight);
+            border-color: var(--text-highlight);
+            color: var(--bg-window);
+        }
+        .push-indicator {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+            animation: bounce 2s infinite;
+        }
+        .push-indicator.is-visible {
+            opacity: 1;
+        }
+        .push-indicator.fade-out {
+            opacity: 0;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="p-2 md:p-6">
+
+<main id="main-container" class="max-w-4xl mx-auto space-y-6">
+
+    <header class="text-center game-window">
+        <p class="pixel-font text-yellow-300 fade-in" style="animation-delay: 0.2s;">🎭 THE・劇場型ポリティクス 🎭</p>
+        <div class="h-[2.5rem] md:h-[3rem] overflow-hidden my-2">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl sunrise-title">イトー市・タクボクエストⅱ</h1>
+        </div>
+        <p class="text-lg mt-1 fade-in" style="animation-delay: 0.5s;">～欠如した説明責任とカオスの中で～</p>
+    </header>
+
+    <!-- Chapter 0: Opening -->
+    <section id="opening" class="game-window" data-animation-section>
+        <h2 class="text-xl font-bold pixel-font mb-3 text-center">オープニング：物語の登場人物</h2>
+        <p class="mb-4 text-sm" data-animation-chain="1" style="opacity: 0;">温泉と観光のまち「イトー市」。この物語は、二つの勢力の対立を中心に進む…。</p>
+       
+        <!-- Character Introductions -->
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div class="p-3" style="background-color: var(--bg-card);">
+                <h3 class="text-lg pixel-font text-red-400 text-center">👩‍🦳 夢想の改革者 タクボ</h3>
+                <p class="mt-2" data-animation-chain="2" style="opacity: 0;">「市民派」を掲げ既成勢力に挑む新市長。逆境でも公約実現に執念を燃やすが、疑惑への説明は論理的に破綻。法的権利を盾に徹底抗戦する。ＳＮＳの呪文で「秘技・論点ずらし」を連発する。</p>
+                <p class="mt-2 pixel-font"><span class="text-yellow-300">スキル:</span> <span data-animation-chain="3" style="opacity: 0;">黙秘権の盾 / 論点ずらしの19.2秒 / 目くらましSNS活用術</span></p>
+            </div>
+            <div class="p-3" style="background-color: var(--bg-card);">
+                <h3 class="text-lg pixel-font text-blue-400 text-center">🏛️ 秩序の守護者 ギカイ</h3>
+                <p class="mt-2" data-animation-chain="4" style="opacity: 0;">市政の安定と継続性を重んじる市議会の多数派。市長の倫理観を問題視し、議会の権威を守るため立ち上がる。手続きと数の力を武器とする。旧態依然とした伏魔殿（市役所）の守護者という側面も…。</p>
+                <p class="mt-2 pixel-font"><span class="text-yellow-300">スキル:</span> <span data-animation-chain="5" style="opacity: 0;">百条委員会の剣 / 包囲網作戦 / 伝家の宝刀・不信任決議</span></p>
+            </div>
+        </div>
+
+        <p class="mt-6 mb-4 text-sm font-bold">この問題、あなたはどう見る？</p>
+        <div id="stance-selector" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
+            <!-- Stance buttons will be injected here -->
+        </div>
+    </section>
+
+    <!-- Trust Gauge -->
+    <div id="trust-gauge-container" class="game-window">
+        <div class="flex justify-between items-center text-sm pixel-font mb-1">
+            <span>市政信頼度</span>
+            <span><span id="trust-value">--</span> / 100</span>
+        </div>
+        <div class="progress-bar w-full h-4">
+            <div id="trust-bar" class="progress-bar-inner h-full" style="width: 50%; background-color: var(--trust-bar-fill);"></div>
+        </div>
+    </div>
+
+    <!-- Chapter 1: Chronicle -->
+    <section id="chapter1" class="game-window" data-animation-section>
+        <h2 class="text-xl font-bold pixel-font mb-4 text-center">第1章：疑惑と謎のラビリンス</h2>
+        <div id="timeline-container" class="flex flex-col md:flex-row md:flex-wrap items-center justify-center gap-x-2 gap-y-4 text-sm">
+            <!-- Timeline cards will be injected here -->
+        </div>
+    </section>
+   
+    <!-- Chapter 2: Coliseum -->
+    <section id="chapter2" class="game-window" data-animation-section>
+        <h2 class="text-xl font-bold pixel-font mb-4 text-center">第2章：バトルの火種</h2>
+        <div id="issue-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 text-sm">
+            <!-- Issue cards will be injected here -->
+        </div>
+    </section>
+
+    <!-- Chapter 3: Battle -->
+    <section id="chapter3" class="game-window" data-animation-section>
+        <h2 class="text-xl font-bold pixel-font mb-3 text-center text-red-400">第3章：決戦！百条委員会</h2>
+        <div id="battle-arena" class="hidden relative">
+            <div id="animation-layer" class="absolute inset-0 overflow-hidden"></div>
+            <!-- Battle UI -->
+            <div class="grid grid-cols-2 gap-4 text-center pixel-font">
+                <div id="mayor-card">
+                    <p>👩‍🦳 夢想の改革者 タクボ</p>
+                    <div class="progress-bar w-full h-3 mt-1"><div id="mayor-hp" class="progress-bar-inner h-full" style="width: 100%; background-color: var(--hp-bar-fill);"></div></div>
+                </div>
+                <div id="council-card">
+                    <p>🏛️ 秩序の守護者 ギカイ</p>
+                    <div class="progress-bar w-full h-3 mt-1"><div id="council-hp" class="progress-bar-inner h-full" style="width: 100%; background-color: var(--hp-bar-fill);"></div></div>
+                </div>
+            </div>
+            <!-- Message Window -->
+            <div id="battle-message" class="text-window mt-3 text-sm pixel-font" role="status" aria-live="polite">
+                <p>戦いの火蓋が切られた…</p>
+            </div>
+        </div>
+        <div id="start-battle-wrapper" class="relative mt-16">
+                 <div id="push-indicator" class="absolute -top-14 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+                    <span class="bg-yellow-400 text-black pixel-font px-3 py-1 rounded mb-1 whitespace-nowrap">ここをプッシュ！</span>
+                    <span class="text-3xl text-yellow-400">👇</span>
+                </div>
+            <button id="start-battle-btn" class="w-full bg-red-700 hover:bg-red-800 p-2 pixel-font text-lg">▶ BATTLE START ◀</button>
+        </div>
+    </section>
+
+    <!-- Chapter 4: Commentary -->
+    <section id="chapter4" class="game-window" data-animation-section>
+        <h2 class="text-xl font-bold pixel-font mb-4 text-center">第４章：徹底解説・イヤナギが斬る！</h2>
+        <div id="commentary-container">
+            <!-- Profiles -->
+            <div id="commentator-profiles" class="mb-4">
+                 <div class="grid md:grid-cols-2 gap-4 text-sm mb-4">
+                     <div class="flex items-center gap-3 p-2" style="background-color: var(--bg-card);">
+                         <div class="dialogue-avatar">👨‍🦲</div>
+                         <div>
+                            <h4 class="pixel-font text-blue-400">進行役はイトー支局 アオチャン</h4>
+                            <p class="text-xs mt-1">川勝前知事の"騒動"も最前線で取材した不信任決議取材のプロ。質問の切れ味から、静新のプリゴジンの異名を取る。</p>
+                         </div>
+                     </div>
+                     <div class="flex items-center gap-3 p-2" style="background-color: var(--bg-card);">
+                         <div class="dialogue-avatar">👩‍🏫</div>
+                         <div>
+                              <h4 class="pixel-font text-green-400">ご存じ政治学者 イヤナギ先生</h4>
+                              <p class="text-xs mt-1">知的な雰囲気と歯に衣着せぬ物言いでお茶の間に人気。テレビのコメンテーターにひっぱりだこの論客。</p>
+                         </div>
+                     </div>
+                 </div>
+            </div>
+            <!-- Dialogue -->
+            <div id="dialogue-area" class="space-y-3 mb-4">
+                <!-- Dialogue will be injected here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter 5: Final Decision -->
+    <section id="chapter5" class="game-window hidden" data-animation-section>
+        <h2 class="text-xl font-bold pixel-font mb-4 text-center">最終章：タクボの決断は？</h2>
+        <div id="final-choice-container" class="mt-6 text-center">
+           
+            <div class="pixel-font p-3 mb-4 border-2 border-dashed">
+                <h3 class="text-lg text-yellow-300 mb-2">今後のスケジュール</h3>
+                <div class="text-sm space-y-2">
+                    <div class="flow-node flow-path-item p-2 border" data-path-id="start">不信任案 可決 (2025/9/1)</div>
+                    <div class="flow-arrow text-2xl">↓</div>
+                    <div class="flow-node flow-path-item p-2 border" data-path-id="choice-point">市長の決断 (期限: 9/11)</div>
+                    <div class="grid grid-cols-2 gap-4 mt-2">
+                        <div id="final-choices-flow-dissolve">
+                           <div class="flow-arrow text-2xl">↓</div>
+                           <div class="flow-node flow-path-item p-2 border" data-path-id="dissolve-1">議会解散</div>
+                           <div class="flow-arrow text-2xl">↓</div>
+                           <div class="flow-node flow-path-item p-2 border" data-path-id="dissolve-2">市議選 (期限: 10/21)</div>
+                        </div>
+                         <div id="final-choices-flow-resign">
+                           <div class="flow-arrow text-2xl">↓</div>
+                           <div class="flow-node flow-path-item p-2 border" data-path-id="resign-1">自ら辞職</div>
+                           <div class="flow-arrow text-2xl">↓</div>
+                           <div class="flow-node flow-path-item p-2 border" data-path-id="resign-2">市長選 (期限: 10/31)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="choice-prompt-wrapper">
+                <p class="pixel-font text-yellow-300 text-lg mb-3">運命の選択</p>
+                <p class="mb-4">あなたが市長なら、どちらの扉を開く？</p>
+                <div id="final-choices" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
+            </div>
+        </div>
+        <div id="ending-screen" class="hidden text-center p-4 mt-4"></div>
+    </section>
+
+
+    <footer class="text-center text-xs text-gray-500 pixel-font mt-6">
+        <p>出典：ウェブ上の公開情報</p>
+        <p class="mt-1">お断り：本コンテンツはAIが制作した架空のストーリーで、特定のゲームや実在の人物とは一切関係ありません</p>
+    </footer>
+
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DATA ---
+    const DATA = {
+        stances: [
+            { id: 'pro-mayor', label: '市長を信じる', trust: 75 },
+            { id: 'pro-council', label: '議会を支持する', trust: 25 },
+            { id: 'neutral', label: 'まずは様子を見る', trust: 50 },
+        ],
+        timeline: [
+            { event: "疑惑の発端", detail: "「市長の学歴は嘘」との匿名文書が全議員に届く。", icon: "✉️" },
+            { event: "謎の「チラ見せ」", detail: "市長が卒業証書らしきものを見せるが、確認させず不信感を招く。", icon: "📜" },
+            { event: "19.2秒の証言", detail: "百条委員会で『19.2秒見せた』と証言。これが偽証罪疑惑の引き金に。", icon: "⏱️" },
+            { event: "あの人がサプライズ登場", detail: "メガソーラー問題の背後から『ウィッグの盟主 ナンバ』が突如参戦！物語は新展開へ。", icon: "👨‍🦳" },
+            { event: "不信任案、可決！", detail: "9月議会で不信任案が全会一致で可決。市長は刑事告発され、議会解散で反撃。市民を巻き込んだ選挙戦へ！", icon: "💥" }
+        ],
+        issues: [
+            { name: "公職選挙法違反", detail: "当選目的で虚偽の経歴を公表したか。「知らなかった」という主張が争点。", icon: "🗳️" },
+            { name: "虚偽証言(地自法違反)", detail: "百条委での「6月28日に初めて知った」等の証言が虚偽と断定され、刑事告発へ。", icon: "✍️" },
+            { name: "対立の構造", detail: "新図書館建設やメガソーラーに反対する市長の公約と、それを推進してきた議会多数派との根深い対立が背景にある。", icon: "⚔️"},
+            { name: "【NEW】行政ストップ", detail: "焼却炉補修費など約6億円の予算が止まり、市民サービスに具体的な影響が出始める。", icon: "🛑"}
+        ],
+        battleLog: [
+            { turn: 'council', skill: '百条委員会の剣', icon: '⚔️', damage: 15 },
+            { turn: 'mayor', skill: '黙秘権の盾', icon: '🛡️', damage: 10 },
+            { turn: 'council', skill: '包囲網作戦', icon: '🕸️', damage: 20 },
+            { turn: 'mayor', skill: '【秘技】論点ずらしの19.2秒', icon: '⏳', heal: 25, trustDamage: 20 },
+            { turn: 'system', text: '突如、大都市から援軍が現れた！' },
+            { turn: 'nanba', skill: '奇策：メガソーラー', icon: '👨‍🦳', damage: 20 },
+            { turn: 'mayor', skill: '【奥義】目くらましSNS活用術', icon: '📱', damage: 25, special: 'nanba_repel' },
+            { turn: 'system', text: 'しかし、あの男が再び…！' },
+            { turn: 'nanba', skill: '【最終見解】これは事実です。以上', icon: '👨‍🦳', damage: 25, special: 'nanba_flee' },
+            { turn: 'system', text: 'ナンバは言いたいことだけ言うと、颯爽と去っていった…' },
+            { turn: 'council', skill: '【伝家の宝刀】不信任決議', icon: '💥', damage: 30 },
+            { turn: 'system', text: '両者の対立は激化し、市政は完全に機能不全に陥った…' }
+        ],
+        dialogue: [
+            { speaker: 'aochan', text: '先生！いよいよ運命の9月11日が迫ってますが、ウチのAI予測だと「議会解散」が63%、「辞職」が34%。現場はピリピリしてますが、先生、この数字どう見ます？' },
+            { speaker: 'iyanagi', text: 'ええ、アオチャン。そのデータは、現状をすごく率直に示していますね。えーっと、地方自治法上、彼女に残された道はもう「議会解散」か「辞職」か、その二択だけなんです。まさに彼女の政治生命における、重大な分岐点ですね。' },
+            { speaker: 'aochan', text: 'そこへ来て、この「刑事告発の受理」ですよ！SNSはタクボに非難轟轟です、これで辞職待ったなし、というのが空気感なんですが…。' },
+            { speaker: 'iyanagi', text: 'うーん、むしろ逆じゃないかしら。ええ。だって、ここで辞めたら罪を認めたと思われるでしょう？プライドの高い政治家なら「徹底抗戦」ですよ。市民に直接潔白を訴えるために「議会解散」を選ぶ動機が、えーっと、かえって強まったと分析もできるわけです。' },
+            { speaker: 'aochan', text: 'マジっすか！追い込まれたからこその強硬策！…ただ、そうなると「民意」とのズレが気になります。以前の調査じゃ、辞職を求める声が大多数でしたよね？' },
+            { speaker: 'iyanagi', text: 'ええ、そこが核心なんです。彼女は、メディアが報じる世論の、その奥にいる「サイレント・マジョリティ」を信じているのだと思います。もちろん、えー、その見通しが甘かったら、解散後の選挙で手痛いしっぺ返しを食らい、自動的に失職です。とってもハイリスクな賭けですね。' },
+            { speaker: 'aochan', text: 'うーん、深いなぁ…。では先生、最終的な見通しを！市長はどっちの道を選ぶでしょう！？' },
+            { speaker: 'iyanagi', text: 'やっぱり「議会解散」の可能性の方が高いんじゃないかしら。ええ。政治家というものは、権力の座にいる限り、最後まで戦う道を探るものなんです。刑事告発っていう逆風でさえ、支持者を固める燃料に変えちゃうかもしれないわ。9月11日、私たちは歴史的決断の目撃者になるかもしれません。' },
+            { speaker: 'system', text: 'さあ、物語は最終局面へ。イトー市の未来はどうなるのか…！' }
+        ],
+        finalChoices: [
+            { id: "dissolve", title: "議会を解散" },
+            { id: "resign", title: "自ら辞職" }
+        ],
+        endings: [
+            { 
+                id: 'continue', 
+                title: 'ENDING: 茨の道は続く…', 
+                visual: '<div class="ending-visual-sprout">🌱</div>',
+                sound: '[かすかな希望の音が、静かに響き始める… ]',
+                text: '「夢想の改革者」は、市民に最後の審判を委ねた。議会解散という茨の道。それは、混乱の終わりか、それとも新たな始まりか。小さな改革の芽は、果たしてこのカオスの中で育つのだろうか。<br><br><span class="text-yellow-300">TO BE CONTINUED...?</span>'
+            },
+            {
+                id: 'gameover',
+                title: 'ENDING: GAME OVER',
+                visual: '<div class="ending-visual-sunset"></div>',
+                sound: '[静かに、物語の終わりを告げる音が響く… ]',
+                text: '「夢想の改革者」の挑戦は、ここで幕を閉じた。市民派を掲げたその夢は、まるで夕日に溶けるように消えていく…。市政改革のクエストは、また別の冒険者に引き継がれるのだろうか。あるいは…。<br><br><span class="text-red-400">THE END</span>'
+            }
+        ]
+    };
+
+    // --- Elements ---
+    const mainContainer = document.getElementById('main-container');
+    const trustValue = document.getElementById('trust-value');
+    const trustBar = document.getElementById('trust-bar');
+    const stanceSelector = document.getElementById('stance-selector');
+    const timelineContainer = document.getElementById('timeline-container');
+    const issueGrid = document.getElementById('issue-grid');
+    const startBattleBtn = document.getElementById('start-battle-btn');
+    const battleArena = document.getElementById('battle-arena');
+    const animationLayer = document.getElementById('animation-layer');
+    const battleMessage = document.getElementById('battle-message');
+    const mayorCard = document.getElementById('mayor-card');
+    const councilCard = document.getElementById('council-card');
+    const mayorHp = document.getElementById('mayor-hp');
+    const councilHp = document.getElementById('council-hp');
+    const dialogueArea = document.getElementById('dialogue-area');
+    const finalChapter = document.getElementById('chapter5');
+    const finalChoices = document.getElementById('final-choices');
+    const endingScreen = document.getElementById('ending-screen');
+
+    let state = {
+        trust: 50,
+        mayorHealth: 100,
+        councilHealth: 100
+    };
+
+    // --- Initialization ---
+    function init() {
+        updateTrustGauge(state.trust);
+
+        DATA.stances.forEach(s => {
+            const button = document.createElement('button');
+            button.className = 'stance-btn p-2 border-2 border-white pixel-font hover:bg-blue-900 transition';
+            button.dataset.id = s.id;
+            button.textContent = s.label;
+            button.addEventListener('click', () => selectStance(s));
+            stanceSelector.appendChild(button);
+        });
+
+        DATA.timeline.forEach((t) => {
+            const card = document.createElement('div');
+            card.className = 'stagger-item p-3 text-center w-40';
+            card.style.backgroundColor = 'var(--bg-card)';
+            card.innerHTML = `
+                <div class="text-3xl">${t.icon}</div>
+                <h3 class="pixel-font text-yellow-300 mt-1 h-10 flex items-center justify-center">${t.event}</h3>
+                <p class="mt-2 text-xs">${t.detail}</p>
+            `;
+            const arrowContainer = document.createElement('div');
+            arrowContainer.className = 'stagger-item flex items-center';
+            arrowContainer.innerHTML = `
+                <div class="text-2xl text-yellow-300 pixel-font hidden md:block mx-2">→</div>
+                <div class="text-2xl text-yellow-300 pixel-font md:hidden my-2">↓</div>
+            `;
+            timelineContainer.appendChild(card);
+            timelineContainer.appendChild(arrowContainer);
+        });
+        timelineContainer.lastChild.remove();
+
+
+        DATA.issues.forEach(i => {
+            const card = document.createElement('div');
+            card.className = 'stagger-item p-3 text-center';
+            card.style.backgroundColor = 'var(--bg-card)';
+            card.innerHTML = `
+                <div class="text-3xl">${i.icon}</div>
+                <h3 class="pixel-font text-yellow-300 mt-1">${i.name}</h3>
+                <p class="mt-2 text-xs">${i.detail}</p>
+            `;
+            issueGrid.appendChild(card);
+        });
+       
+        DATA.finalChoices.forEach(s => {
+            const choiceBtn = document.createElement('button');
+            choiceBtn.className = 'p-4 border-2 border-white pixel-font text-lg hover:bg-blue-900 transition';
+            choiceBtn.textContent = s.title;
+            if (s.id === "dissolve") {
+                choiceBtn.addEventListener('click', () => handleFinalChoice('dissolve'));
+            } else {
+                choiceBtn.addEventListener('click', () => handleFinalChoice('resign'));
+            }
+            finalChoices.appendChild(choiceBtn);
+        });
+
+        startBattleBtn.addEventListener('click', startBattle);
+        setupScrollAnimations();
+    }
+
+    // --- Functions ---
+    function typewriter(element, text, speed) {
+        return new Promise(resolve => {
+            let i = 0;
+            const cursor = document.createElement('span');
+            cursor.className = 'typing-cursor';
+            element.innerHTML = '';
+            element.appendChild(cursor);
+           
+            function type() {
+                if (i < text.length) {
+                    cursor.before(text.charAt(i));
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    cursor.remove();
+                    resolve();
+                }
+            }
+            type();
+        });
+    }
+   
+    async function startDialogue() {
+        dialogueArea.innerHTML = '';
+        for (const dialogue of DATA.dialogue) {
+            if (dialogue.speaker === 'system') {
+                const systemMessage = document.createElement('p');
+                systemMessage.className = 'text-center pixel-font text-yellow-300 py-2';
+                dialogueArea.appendChild(systemMessage);
+                await typewriter(systemMessage, dialogue.text, 50);
+            } else {
+                const messageWrapper = document.createElement('div');
+                messageWrapper.className = 'flex items-start gap-3 dialogue-wrapper';
+
+                const avatar = document.createElement('div');
+                avatar.className = 'dialogue-avatar';
+               
+                const bubble = document.createElement('div');
+                bubble.className = 'dialogue-bubble';
+
+                const name = document.createElement('p');
+                name.className = 'pixel-font text-sm mb-1';
+               
+                const textElement = document.createElement('p');
+                textElement.className = 'text-sm';
+                textElement.textContent = dialogue.text;
+
+                if (dialogue.speaker === 'aochan') {
+                    avatar.textContent = '👨‍🦲';
+                    name.textContent = 'イトー支局長 アオチャン';
+                    name.style.color = '#63b3ed'; // blue-400
+                    bubble.classList.add('dialogue-bubble-left');
+                    messageWrapper.appendChild(avatar);
+                    messageWrapper.appendChild(bubble);
+                    messageWrapper.classList.add('slide-in-left');
+                } else { // iyanagi
+                    avatar.textContent = '👩‍🏫';
+                    name.textContent = '政治学者 イヤナギ先生';
+                    name.style.color = '#68d391'; // green-400
+                    bubble.classList.add('dialogue-bubble-right');
+                    messageWrapper.appendChild(bubble);
+                    messageWrapper.appendChild(avatar);
+                    messageWrapper.classList.add('slide-in-right');
+                }
+               
+                bubble.appendChild(name);
+                bubble.appendChild(textElement);
+                dialogueArea.appendChild(messageWrapper);
+            }
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        finalChapter.classList.remove('hidden');
+        finalChapter.classList.add('fade-in');
+    }
+
+    function updateTrustGauge(value) {
+        state.trust = Math.max(0, Math.min(100, value));
+        trustValue.textContent = state.trust;
+        trustBar.style.width = `${state.trust}%`;
+    }
+
+    function selectStance(stance) {
+        updateTrustGauge(stance.trust);
+        document.querySelectorAll('.stance-btn').forEach(btn => btn.setAttribute('aria-selected', 'false'));
+        document.querySelector(`.stance-btn[data-id="${stance.id}"]`).setAttribute('aria-selected', 'true');
+    }
+
+    function playAttackAnimation(log) {
+        const icon = document.createElement('div');
+        icon.className = 'attack-icon';
+        icon.textContent = log.icon;
+        animationLayer.appendChild(icon);
+
+        if (log.turn === 'council' || log.turn === 'nanba') {
+            icon.style.right = '25%';
+            icon.style.top = '20%';
+            icon.classList.add('attack-anim-mayor');
+        } else {
+            icon.style.left = '25%';
+            icon.style.top = '20%';
+            icon.classList.add('attack-anim-council');
+        }
+
+        setTimeout(() => icon.remove(), 1500);
+    }
+
+    async function startBattle() {
+        document.getElementById('start-battle-wrapper').classList.add('hidden');
+        battleArena.classList.remove('hidden');
+       
+        for (const log of DATA.battleLog) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+           
+            let attackerName, attackerColor, targetCard, targetHpBar, targetHealthKey;
+
+            if (log.turn === 'system') {
+                battleMessage.innerHTML = `<p class="text-yellow-300">${log.text}</p>`;
+            } else {
+                if (log.turn === 'mayor') {
+                    attackerName = 'タクボ';
+                    attackerColor = 'text-red-400';
+                    targetCard = councilCard;
+                    targetHpBar = councilHp;
+                    targetHealthKey = 'councilHealth';
+                } else {
+                    attackerName = (log.turn === 'nanba') ? 'ウィッグの盟主 ナンバ' : 'ギカイ';
+                    attackerColor = (log.turn === 'nanba') ? 'text-purple-400' : 'text-blue-400';
+                    targetCard = mayorCard;
+                    targetHpBar = mayorHp;
+                    targetHealthKey = 'mayorHealth';
+                }
+               
+                if (log.special === 'nanba_repel') {
+                    battleMessage.innerHTML = `<p><span class="${attackerColor}">${attackerName}</span> の <span class="text-yellow-300">${log.skill}</span>！ナンバを撃退した！</p>`;
+                } else if (log.trustDamage) {
+                    battleMessage.innerHTML = `<p><span class="${attackerColor}">${attackerName}</span> は <span class="text-yellow-300">${log.skill}</span> を発動！相手にダメージはないが、市民の信頼が失われていく…。</p>`;
+                } else {
+                    battleMessage.innerHTML = `<p><span class="${attackerColor}">${attackerName}</span> の攻撃！ <span class="text-yellow-300">${log.skill}</span>！</p>`;
+                }
+               
+                if(log.icon) playAttackAnimation(log);
+               
+                await new Promise(resolve => setTimeout(resolve, 600));
+
+                if (log.damage > 0) {
+                    state[targetHealthKey] -= log.damage;
+                    targetHpBar.style.width = `${Math.max(0, state[targetHealthKey])}%`;
+                    targetCard.classList.add('damage-animation');
+                }
+                if (log.heal > 0) {
+                    state.mayorHealth = Math.min(100, state.mayorHealth + log.heal);
+                    mayorHp.style.width = `${state.mayorHealth}%`;
+                    mayorCard.classList.add('heal-animation');
+                }
+                if (log.trustDamage) {
+                    updateTrustGauge(state.trust - log.trustDamage);
+                }
+
+                mainContainer.classList.add('screen-shake');
+                setTimeout(() => {
+                    targetCard.classList.remove('damage-animation');
+                    mayorCard.classList.remove('heal-animation');
+                    mainContainer.classList.remove('screen-shake');
+                }, 500);
+            }
+        }
+       
+        // --- ADDED: Start Chapter 4 after battle ---
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for the last message to be read
+        const chapter4 = document.getElementById('chapter4');
+        chapter4.classList.add('is-visible'); // Make the section visible
+        chapter4.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        await startDialogue();
+        // --- END ADDITION ---
+    }
+   
+    function handleFinalChoice(choiceId) {
+        document.querySelectorAll('.flow-path-item').forEach(el => el.classList.remove('highlighted'));
+       
+        const pathItems = document.querySelectorAll(`[data-path-id^="${choiceId}"], [data-path-id="start"], [data-path-id="choice-point"]`);
+        pathItems.forEach(item => item.classList.add('highlighted'));
+
+        document.getElementById('choice-prompt-wrapper').classList.add('hidden');
+       
+        setTimeout(() => {
+            const ending = (choiceId === 'dissolve') ? DATA.endings[0] : DATA.endings[1];
+             endingScreen.innerHTML = `
+                <h3 class="text-2xl pixel-font text-yellow-300 mb-4">${ending.title}</h3>
+                ${ending.visual}
+                <p class="text-sm text-gray-400 italic my-4">${ending.sound}</p>
+                <p class="text-base pixel-font leading-relaxed">${ending.text}</p>
+            `;
+            endingScreen.classList.remove('hidden');
+            endingScreen.classList.add('fade-in');
+        }, 2000);
+    }
+   
+    function setupScrollAnimations() {
+        // This promise chain ensures that each major animation sequence (like a chapter appearing)
+        // completes before the next one starts, even if the user scrolls quickly.
+        // It prevents animations from overlapping and creating a jarring experience.
+        let animationPromise = Promise.resolve();
+       
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    observer.unobserve(el);
+                   
+                    animationPromise = animationPromise.then(() => {
+                        return new Promise(async (resolve) => {
+                            const animationType = el.dataset.animation;
+                            el.classList.add('is-visible');
+
+                            if (animationType === 'opening-chain') {
+                                // Wait for the title's CSS animation to have time to play out
+                                await new Promise(r => setTimeout(r, 6500));
+                                const elementsToType = el.querySelectorAll('[data-animation-chain]');
+                                for(const chainEl of elementsToType) {
+                                    chainEl.style.opacity = '1';
+                                    await typewriter(chainEl, chainEl.textContent, 80);
+                                }
+                            } else if (animationType === 'stagger-children') {
+                                const children = el.querySelectorAll('.stagger-item');
+                                for (const child of children) {
+                                    child.classList.add('is-visible');
+                                    await new Promise(r => setTimeout(r, 1500));
+                                }
+                            } else if (animationType === 'battle') {
+                                const pushIndicator = el.querySelector('#push-indicator');
+                                pushIndicator.classList.add('is-visible'); 
+                                await new Promise(r => setTimeout(r, 3000));
+                                pushIndicator.classList.add('fade-out');
+                            } else if (animationType === 'dialogue') {
+                                // This is now triggered by the battle completion, not scroll.
+                                // await startDialogue();
+                            }
+                            resolve();
+                        });
+                    });
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-animation-section]').forEach((section) => {
+            if(section.id === 'opening') section.dataset.animation = 'opening-chain';
+            else if (section.id === 'chapter1' || section.id === 'chapter2') section.dataset.animation = 'stagger-children';
+            else if (section.id === 'chapter3') section.dataset.animation = 'battle';
+            // REMOVED: else if (section.id === 'chapter4') section.dataset.animation = 'dialogue';
+            observer.observe(section);
+        });
+    }
+
+    init();
+});
+</script>
+
+</body>
+</html>
+
+
+
+
