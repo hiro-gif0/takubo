@@ -33,19 +33,32 @@
             --font-pixel: 'DotGothic16', monospace;
             --font-sans: 'Noto Sans JP', sans-serif;
             --font-impact: 'RocknRoll One', sans-serif;
+            --mayor-color: #f6ad55;
+            --council-color: #63b3ed;
         }
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
             font-family: var(--font-sans);
         }
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
+            pointer-events: none;
+            z-index: 9999;
+        }
         .pixel-font { font-family: var(--font-pixel); }
         .game-window {
             background-color: var(--bg-window);
             border: 2px solid var(--border-color);
             border-radius: 0;
-            padding: 1.5rem;
-            box-shadow: 0 0 0 4px var(--bg-window);
+            padding: 1.75rem;
+            box-shadow:
+                inset 0 0 0 3px var(--bg-window),
+                inset 0 0 0 5px var(--border-color),
+                0 0 30px rgba(66, 153, 225, 0.12);
         }
         .text-window {
             border: 2px solid var(--border-color);
@@ -214,6 +227,29 @@
             40% { transform: translateY(-10px); }
             60% { transform: translateY(-5px); }
         }
+        .chapter-badge {
+            font-family: var(--font-pixel);
+            font-size: 0.65rem;
+            background-color: var(--text-highlight);
+            color: var(--bg-window);
+            padding: 0.1rem 0.6rem;
+            display: inline-block;
+            letter-spacing: 0.08em;
+        }
+        .mayor-card { border-left: 3px solid var(--mayor-color); }
+        .council-card { border-left: 3px solid var(--council-color); }
+        #start-battle-btn {
+            animation: btn-pulse 2s ease-in-out infinite;
+            text-shadow: 0 0 8px rgba(255,255,255,0.4);
+        }
+        @keyframes btn-pulse {
+            0%, 100% { box-shadow: 0 0 6px rgba(229, 62, 62, 0.4); }
+            50% { box-shadow: 0 0 22px rgba(229, 62, 62, 0.85), 0 0 6px rgba(255,100,100,0.5); }
+        }
+        button { cursor: crosshair; }
+        #trust-bar {
+            background: linear-gradient(to right, #e53e3e 0%, #ecc94b 50%, #48bb78 100%);
+        }
     </style>
 </head>
 <body class="p-2 md:p-6">
@@ -230,18 +266,19 @@
 
     <!-- Chapter 0: Opening -->
     <section id="opening" class="game-window" data-animation-section>
+        <div class="text-center mb-1"><span class="chapter-badge">CHAPTER 0</span></div>
         <h2 class="text-xl font-bold pixel-font mb-3 text-center">オープニング：物語の登場人物</h2>
         <p class="mb-4 text-sm" data-animation-chain="1" style="opacity: 0;">温泉と観光のまち「イトー市」。この物語は、二つの勢力の対立を中心に進む…。</p>
        
         <!-- Character Introductions -->
         <div class="grid md:grid-cols-2 gap-4 text-sm">
-            <div class="p-3" style="background-color: var(--bg-card);">
-                <h3 class="text-lg pixel-font text-red-400 text-center">👩‍🦳 夢想の改革者 タクボ</h3>
+            <div class="p-3 mayor-card" style="background-color: var(--bg-card);">
+                <h3 class="text-lg pixel-font text-center" style="color: var(--mayor-color);">👩‍🦳 夢想の改革者 タクボ</h3>
                 <p class="mt-2" data-animation-chain="2" style="opacity: 0;">「市民派」を掲げ既成勢力に挑む新市長。逆境でも公約実現に執念を燃やすが、疑惑への説明は論理的に破綻。法的権利を盾に徹底抗戦する。ＳＮＳの呪文で「秘技・論点ずらし」を連発する。</p>
                 <p class="mt-2 pixel-font"><span class="text-yellow-300">スキル:</span> <span data-animation-chain="3" style="opacity: 0;">黙秘権の盾 / 論点ずらしの19.2秒 / 目くらましSNS活用術</span></p>
             </div>
-            <div class="p-3" style="background-color: var(--bg-card);">
-                <h3 class="text-lg pixel-font text-blue-400 text-center">🏛️ 秩序の守護者 ギカイ</h3>
+            <div class="p-3 council-card" style="background-color: var(--bg-card);">
+                <h3 class="text-lg pixel-font text-center" style="color: var(--council-color);">🏛️ 秩序の守護者 ギカイ</h3>
                 <p class="mt-2" data-animation-chain="4" style="opacity: 0;">市政の安定と継続性を重んじる市議会の多数派。市長の倫理観を問題視し、議会の権威を守るため立ち上がる。手続きと数の力を武器とする。旧態依然とした伏魔殿（市役所）の守護者という側面も…。</p>
                 <p class="mt-2 pixel-font"><span class="text-yellow-300">スキル:</span> <span data-animation-chain="5" style="opacity: 0;">百条委員会の剣 / 包囲網作戦 / 伝家の宝刀・不信任決議</span></p>
             </div>
@@ -260,12 +297,13 @@
             <span><span id="trust-value">--</span> / 100</span>
         </div>
         <div class="progress-bar w-full h-4">
-            <div id="trust-bar" class="progress-bar-inner h-full" style="width: 50%; background-color: var(--trust-bar-fill);"></div>
+            <div id="trust-bar" class="progress-bar-inner h-full" style="width: 50%;"></div>
         </div>
     </div>
 
     <!-- Chapter 1: Chronicle -->
     <section id="chapter1" class="game-window" data-animation-section>
+        <div class="text-center mb-1"><span class="chapter-badge">CHAPTER 1</span></div>
         <h2 class="text-xl font-bold pixel-font mb-4 text-center">第1章：疑惑と謎のラビリンス</h2>
         <div id="timeline-container" class="flex flex-col md:flex-row md:flex-wrap items-center justify-center gap-x-2 gap-y-4 text-sm">
             <!-- Timeline cards will be injected here -->
@@ -274,6 +312,7 @@
    
     <!-- Chapter 2: Coliseum -->
     <section id="chapter2" class="game-window" data-animation-section>
+        <div class="text-center mb-1"><span class="chapter-badge">CHAPTER 2</span></div>
         <h2 class="text-xl font-bold pixel-font mb-4 text-center">第2章：バトルの火種</h2>
         <div id="issue-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 text-sm">
             <!-- Issue cards will be injected here -->
@@ -282,6 +321,7 @@
 
     <!-- Chapter 3: Battle -->
     <section id="chapter3" class="game-window" data-animation-section>
+        <div class="text-center mb-1"><span class="chapter-badge">CHAPTER 3</span></div>
         <h2 class="text-xl font-bold pixel-font mb-3 text-center text-red-400">第3章：決戦！百条委員会</h2>
         <div id="battle-arena" class="hidden relative">
             <div id="animation-layer" class="absolute inset-0 overflow-hidden"></div>
@@ -289,11 +329,11 @@
             <div class="grid grid-cols-2 gap-4 text-center pixel-font">
                 <div id="mayor-card">
                     <p>👩‍🦳 夢想の改革者 タクボ</p>
-                    <div class="progress-bar w-full h-3 mt-1"><div id="mayor-hp" class="progress-bar-inner h-full" style="width: 100%; background-color: var(--hp-bar-fill);"></div></div>
+                    <div class="progress-bar w-full h-3 mt-1"><div id="mayor-hp" class="progress-bar-inner h-full" style="width: 100%; background-color: var(--mayor-color);"></div></div>
                 </div>
                 <div id="council-card">
                     <p>🏛️ 秩序の守護者 ギカイ</p>
-                    <div class="progress-bar w-full h-3 mt-1"><div id="council-hp" class="progress-bar-inner h-full" style="width: 100%; background-color: var(--hp-bar-fill);"></div></div>
+                    <div class="progress-bar w-full h-3 mt-1"><div id="council-hp" class="progress-bar-inner h-full" style="width: 100%; background-color: var(--council-color);"></div></div>
                 </div>
             </div>
             <!-- Message Window -->
@@ -312,6 +352,7 @@
 
     <!-- Chapter 4: Commentary -->
     <section id="chapter4" class="game-window" data-animation-section>
+        <div class="text-center mb-1"><span class="chapter-badge">CHAPTER 4</span></div>
         <h2 class="text-xl font-bold pixel-font mb-4 text-center">第４章：徹底解説・イヤナギが斬る！</h2>
         <div id="commentary-container">
             <!-- Profiles -->
@@ -342,6 +383,7 @@
 
     <!-- Chapter 5: Final Decision -->
     <section id="chapter5" class="game-window hidden" data-animation-section>
+        <div class="text-center mb-1"><span class="chapter-badge">FINAL CHAPTER</span></div>
         <h2 class="text-xl font-bold pixel-font mb-4 text-center">最終章：タクボの決断は？</h2>
         <div id="final-choice-container" class="mt-6 text-center">
            
