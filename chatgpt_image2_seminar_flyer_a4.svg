@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297">
+  <title>ChatGPT image2.0 セミナー チラシ（A4縦）</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1225"/>
+      <stop offset="100%" stop-color="#1d3f8f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <style>
+      .jp { font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif; fill: #f8fafc; }
+      .muted { fill: #dbe6ff; }
+      .title { font-size: 16px; font-weight: 800; }
+      .lead { font-size: 9px; font-weight: 700; }
+      .body { font-size: 7px; }
+      .label { font-size: 5.4px; font-weight: 700; letter-spacing: 0.2px; }
+    </style>
+  </defs>
+
+  <!-- page background -->
+  <rect x="0" y="0" width="210" height="297" fill="url(#bg)"/>
+
+  <!-- print-safe guide area (15mm margin) -->
+  <rect x="15" y="15" width="180" height="267" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="0.35"/>
+
+  <!-- decorations -->
+  <circle cx="177" cy="35" r="28" fill="#38bdf8" opacity="0.18"/>
+  <circle cx="188" cy="53" r="18" fill="#a78bfa" opacity="0.18"/>
+
+  <!-- header -->
+  <rect x="20" y="22" width="170" height="30" rx="6" fill="url(#accent)"/>
+  <text x="28" y="35" class="jp label" fill="#0a0f20">SPECIAL SEMINAR</text>
+  <text x="28" y="45" class="jp title" fill="#0a0f20">ChatGPT image2.0 セミナー</text>
+
+  <text x="20" y="65" class="jp lead">画像生成の最前線を、わかりやすく学ぶ90分</text>
+  <text x="20" y="74" class="jp body muted">初心者歓迎。実例を交えながら、業務・SNS・企画に活かせる活用法を解説します。</text>
+
+  <!-- information panel -->
+  <rect x="20" y="84" width="170" height="128" rx="6" fill="#0f1c3b" fill-opacity="0.83" stroke="#7dd3fc" stroke-opacity="0.65" stroke-width="0.5"/>
+
+  <text x="28" y="99" class="jp label" fill="#67e8f9">日時</text>
+  <text x="58" y="99" class="jp body">2026年5月1日（金）20:00〜</text>
+  <line x1="28" y1="104" x2="182" y2="104" stroke="#3f5f9a" stroke-width="0.4"/>
+
+  <text x="28" y="116" class="jp label" fill="#67e8f9">会場</text>
+  <text x="58" y="116" class="jp body">静岡市駿河区 登呂3-1-1</text>
+  <line x1="28" y1="121" x2="182" y2="121" stroke="#3f5f9a" stroke-width="0.4"/>
+
+  <text x="28" y="133" class="jp label" fill="#67e8f9">講師</text>
+  <text x="58" y="133" class="jp body">データサイエンティスト ヒロさん</text>
+  <line x1="28" y1="138" x2="182" y2="138" stroke="#3f5f9a" stroke-width="0.4"/>
+
+  <text x="28" y="150" class="jp label" fill="#67e8f9">内容</text>
+  <text x="58" y="150" class="jp body">・ChatGPT image2.0 の基本と最新動向</text>
+  <text x="58" y="159" class="jp body">・プロンプト設計のコツ（実演あり）</text>
+  <text x="58" y="168" class="jp body">・実務で使える画像制作ワークフロー</text>
+  <text x="58" y="177" class="jp body">・質疑応答</text>
+
+  <rect x="28" y="187" width="154" height="18" rx="4" fill="#081126" stroke="#60a5fa" stroke-width="0.45"/>
+  <text x="105" y="198" text-anchor="middle" class="jp body muted">申込先URL・QRコードをここに配置</text>
+
+  <!-- cta -->
+  <rect x="20" y="224" width="170" height="32" rx="6" fill="#0a1226" stroke="#67e8f9" stroke-width="0.6"/>
+  <text x="105" y="238" text-anchor="middle" class="jp lead" fill="#67e8f9">参加申し込み受付中</text>
+  <text x="105" y="248" text-anchor="middle" class="jp body muted">お席に限りがあります。お早めにお申し込みください。</text>
+
+  <!-- footer -->
+  <text x="20" y="268" class="jp body muted">主催：ChatGPT image2.0 セミナー事務局</text>
+  <text x="20" y="276" class="jp body muted">お問い合わせ：example@example.com</text>
+
+  <rect x="0" y="289" width="210" height="8" fill="url(#accent)" opacity="0.92"/>
+</svg>
