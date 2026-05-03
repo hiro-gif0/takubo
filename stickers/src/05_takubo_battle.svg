@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 320" width="370" height="320">
+  <!-- 05: タクボ バトルポーズ「議会解散！」-->
+
+  <!-- 吹き出し (爆発風) -->
+  <polygon points="30,5 80,15 120,5 160,20 200,5 250,18 300,5 340,25 360,10 355,65 300,70 260,85 220,65 180,80 130,65 80,78 40,65 5,70 10,10" fill="#ffff99" stroke="#ff8800" stroke-width="2"/>
+  <text x="45" y="52" font-family="'DotGothic16',monospace" font-size="18" fill="#cc4400">議会解散！</text>
+
+  <!-- 白髪 (逆立ち) -->
+  <rect x="155" y="95" width="60" height="10" fill="#e8e8e8"/>
+  <rect x="148" y="105" width="74" height="10" fill="#e8e8e8"/>
+  <rect x="145" y="85" width="10" height="30" fill="#e8e8e8"/>
+  <rect x="215" y="82" width="10" height="33" fill="#e8e8e8"/>
+  <rect x="158" y="78" width="10" height="30" fill="#e8e8e8"/>
+  <rect x="202" y="75" width="10" height="32" fill="#e8e8e8"/>
+
+  <!-- 顔 (気合) -->
+  <rect x="150" y="105" width="70" height="55" fill="#f5a070"/>
+  <!-- 眉 (力強いV字) -->
+  <rect x="154" y="110" width="22" height="8" fill="#3a2010" transform="rotate(-12,165,114)"/>
+  <rect x="194" y="110" width="22" height="8" fill="#3a2010" transform="rotate(12,205,114)"/>
+  <!-- 目 (力強い) -->
+  <rect x="156" y="122" width="16" height="10" fill="#2c2c2c"/>
+  <rect x="198" y="122" width="16" height="10" fill="#2c2c2c"/>
+  <!-- 目の光 -->
+  <rect x="159" y="124" width="5" height="5" fill="#ffffff"/>
+  <rect x="201" y="124" width="5" height="5" fill="#ffffff"/>
+  <!-- 口 (叫び) -->
+  <rect x="160" y="144" width="50" height="12" fill="#8b3a0a"/>
+  <rect x="164" y="140" width="42" height="5" fill="#c07050"/>
+  <!-- 歯 -->
+  <rect x="165" y="145" width="8" height="6" fill="#f0f0f0"/>
+  <rect x="175" y="145" width="8" height="6" fill="#f0f0f0"/>
+  <rect x="185" y="145" width="8" height="6" fill="#f0f0f0"/>
+  <rect x="195" y="145" width="8" height="6" fill="#f0f0f0"/>
+
+  <!-- 首 -->
+  <rect x="170" y="160" width="30" height="10" fill="#f5a070"/>
+
+  <!-- 服 -->
+  <rect x="130" y="170" width="110" height="65" fill="#f6ad55"/>
+  <rect x="170" y="170" width="30" height="20" fill="#fff8e1"/>
+
+  <!-- 左腕: 前に突き出し -->
+  <rect x="50" y="175" width="80" height="25" fill="#f6ad55"/>
+  <rect x="30" y="170" width="30" height="30" fill="#f5c89a"/>
+  <!-- 右腕: 上に突き上げ -->
+  <rect x="240" y="100" width="25" height="80" fill="#f6ad55"/>
+  <rect x="238" y="88" width="30" height="30" fill="#f5c89a"/>
+  <!-- 握りこぶし表現 -->
+  <rect x="23" y="164" width="16" height="16" fill="#d4905a" stroke="#3a2010" stroke-width="1"/>
+
+  <!-- エフェクト線 -->
+  <line x1="30" y1="185" x2="5" y2="165" stroke="#ffaa00" stroke-width="3"/>
+  <line x1="30" y1="185" x2="5" y2="205" stroke="#ffaa00" stroke-width="3"/>
+  <line x1="30" y1="185" x2="0" y2="185" stroke="#ffaa00" stroke-width="3"/>
+
+  <!-- スカート -->
+  <rect x="130" y="235" width="110" height="40" fill="#8a5030"/>
+
+  <!-- 脚 (踏み込み) -->
+  <rect x="135" y="275" width="35" height="35" fill="#f5c89a"/>
+  <rect x="195" y="270" width="30" height="40" fill="#f5c89a"/>
+  <!-- 靴 -->
+  <rect x="120" y="300" width="55" height="15" fill="#3a2010"/>
+  <rect x="188" y="300" width="45" height="15" fill="#3a2010"/>
+</svg>

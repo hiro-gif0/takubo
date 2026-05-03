@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 320" width="370" height="320">
+  <!-- 06: 議会 ニヤリ -->
+
+  <!-- 議員バッジ (左上) -->
+  <rect x="10" y="10" width="60" height="25" fill="#63b3ed" rx="4"/>
+  <text x="13" y="28" font-family="'DotGothic16',monospace" font-size="14" fill="#fff">議 員</text>
+
+  <!-- 黒髪 (ビシっとセット) -->
+  <rect x="145" y="25" width="80" height="12" fill="#1a1a1a"/>
+  <rect x="135" y="37" width="100" height="12" fill="#1a1a1a"/>
+  <rect x="132" y="49" width="14" height="25" fill="#1a1a1a"/>
+  <rect x="224" y="49" width="14" height="25" fill="#1a1a1a"/>
+  <!-- 七三分け -->
+  <rect x="170" y="25" width="5" height="30" fill="#333"/>
+
+  <!-- 顔 (青白い) -->
+  <rect x="146" y="49" width="78" height="60" fill="#dde8f0"/>
+  <!-- 眉 (片方上げ/してやったり) -->
+  <rect x="152" y="56" width="22" height="6" fill="#1a1a1a"/>
+  <rect x="196" y="52" width="22" height="6" fill="#1a1a1a"/>
+  <!-- 目 (細め/ニヤリ) -->
+  <rect x="154" y="66" width="16" height="7" fill="#1a3050"/>
+  <rect x="200" y="64" width="16" height="7" fill="#1a3050"/>
+  <!-- 目の光 -->
+  <rect x="166" y="67" width="4" height="4" fill="#fff"/>
+  <!-- ニヤリ口 -->
+  <rect x="160" y="92" width="8" height="6" fill="#8a6050"/>
+  <rect x="168" y="94" width="34" height="8" fill="#8a6050"/>
+  <rect x="202" y="92" width="8" height="6" fill="#8a6050"/>
+  <!-- 薄い笑い線 -->
+  <rect x="152" y="87" width="8" height="4" fill="#b09080"/>
+  <rect x="210" y="87" width="8" height="4" fill="#b09080"/>
+
+  <!-- 首 -->
+  <rect x="168" y="109" width="34" height="12" fill="#dde8f0"/>
+
+  <!-- スーツ (紺) -->
+  <rect x="130" y="121" width="110" height="80" fill="#1a3060"/>
+  <!-- ネクタイ -->
+  <rect x="178" y="121" width="14" height="50" fill="#63b3ed"/>
+  <rect x="174" y="121" width="22" height="18" fill="#1a3060"/>
+  <!-- ワイシャツ -->
+  <rect x="174" y="121" width="22" height="22" fill="#f0f4ff"/>
+  <!-- ラペル -->
+  <rect x="130" y="121" width="50" height="40" fill="#243070" clip-path="polygon(0,0 50,0 30,40 0,40)"/>
+  <rect x="190" y="121" width="50" height="40" fill="#243070"/>
+
+  <!-- 左腕: 腕組み -->
+  <rect x="95" y="125" width="35" height="65" fill="#1a3060"/>
+  <rect x="88" y="165" width="50" height="20" fill="#dde8f0"/>
+  <!-- 右腕: 腕組み -->
+  <rect x="240" y="125" width="35" height="65" fill="#1a3060"/>
+
+  <!-- ズボン -->
+  <rect x="130" y="201" width="110" height="60" fill="#0f1e40"/>
+
+  <!-- 脚 -->
+  <rect x="148" y="261" width="35" height="45" fill="#0f1e40"/>
+  <rect x="187" y="261" width="35" height="45" fill="#0f1e40"/>
+  <!-- 靴 -->
+  <rect x="143" y="300" width="45" height="15" fill="#0a0a0a"/>
+  <rect x="182" y="300" width="45" height="15" fill="#0a0a0a"/>
+</svg>
