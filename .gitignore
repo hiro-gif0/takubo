@@ -1,0 +1,12 @@
+# APIキー・環境変数
+.env
+*.env
+
+# AI生成画像は大きいのでGit管理対象外（必要に応じてコメントアウト）
+stickers/ai_dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/

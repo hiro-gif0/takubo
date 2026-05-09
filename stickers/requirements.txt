@@ -1,0 +1,13 @@
+# LINEスタンプ AI生成スクリプト 依存ライブラリ
+# pip install -r stickers/requirements.txt
+
+# 画像処理
+Pillow>=10.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Nano Banana Pro (Gemini 3 Pro Image) - --api gemini 使用時
+google-genai>=1.0.0
+
+# GPT Image 2 (OpenAI) - --api openai 使用時
+openai>=1.30.0

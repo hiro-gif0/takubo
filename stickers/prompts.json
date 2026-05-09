@@ -1,0 +1,58 @@
+{
+  "character_style": "Cute chibi anime character. An elderly Japanese woman politician with short white hair, wearing an orange blazer over a white blouse, navy skirt. Bold black outline, flat color shading, LINE sticker style. Character only, no background elements, isolated on a FLAT SOLID UNIFORM #00FF00 chromakey green background.",
+
+  "stickers": [
+    {
+      "id": "01_takubo_normal",
+      "label": "タクボ 通常",
+      "pose": "Standing upright, neutral friendly expression, arms relaxed at sides, looking forward."
+    },
+    {
+      "id": "02_takubo_victory",
+      "label": "タクボ ガッツポーズ",
+      "pose": "Raising both fists triumphantly above head, big happy smile, eyes closed with joy. Energetic victory pose."
+    },
+    {
+      "id": "03_takubo_angry",
+      "label": "タクボ 怒り・指差し",
+      "pose": "Pointing dramatically with one finger, angry frowning expression, furrowed brows, steam or anger marks near head."
+    },
+    {
+      "id": "04_takubo_sad",
+      "label": "タクボ 泣き",
+      "pose": "Shoulders drooping, head slightly bowed, teardrops falling, sad pouty expression."
+    },
+    {
+      "id": "05_takubo_battle",
+      "label": "タクボ バトルポーズ",
+      "pose": "Dramatic battle stance, one fist thrust forward, determined fierce expression, hair and clothes slightly windswept."
+    },
+    {
+      "id": "06_council_smug",
+      "label": "議会 ニヤリ",
+      "pose": "An elderly Japanese man in a dark navy suit with a smug self-satisfied grin, arms crossed, one eyebrow raised knowingly. Bold outline, flat color, LINE sticker style, on FLAT SOLID #00FF00 green background."
+    },
+    {
+      "id": "07_council_angry",
+      "label": "議会 不信任！",
+      "pose": "An elderly Japanese man in a dark navy suit, fist raised in the air, shouting angrily, veins popping, anger marks on face. Bold outline, flat color, LINE sticker style, on FLAT SOLID #00FF00 green background."
+    },
+    {
+      "id": "08_takubo_vs_council",
+      "label": "タクボ vs 議会 対決",
+      "pose": "Two chibi characters facing each other in a dramatic standoff: on the left, the white-haired woman in orange blazer, on the right, the elderly man in dark navy suit. Both in battle stances, energy sparks between them. Bold outline, flat color, LINE sticker style, on FLAT SOLID #00FF00 green background."
+    },
+    {
+      "id": "main_cover",
+      "label": "メイン画像",
+      "pose": "The white-haired woman politician chibi character in a cheerful waving pose, big smile. Decorative frame or stars around her. Square composition 1:1 ratio. Bold outline, flat color, LINE sticker style, on FLAT SOLID #00FF00 green background.",
+      "size": "1024x1024"
+    },
+    {
+      "id": "tab_icon",
+      "label": "タブ画像",
+      "pose": "Close-up face portrait of the white-haired woman politician chibi character, smiling face only, very simple. Bold outline, flat color, LINE sticker style, on FLAT SOLID #00FF00 green background.",
+      "size": "512x512"
+    }
+  ]
+}
