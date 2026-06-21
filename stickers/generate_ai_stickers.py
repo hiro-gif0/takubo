@@ -78,8 +78,6 @@ def generate_gemini(prompt: str, sticker_id: str) -> Image.Image:
 
     client = genai.Client(api_key=api_key)
 
-    size = sticker.get("size", None) if isinstance(sticker, dict) else None
-
     response = client.models.generate_content(
         model=GEMINI_MODEL,
         contents=prompt,
@@ -119,8 +117,8 @@ def generate_openai(prompt: str, sticker_id: str) -> Image.Image:
         prompt=prompt,
         n=1,
         size=size,
-        output_format="png",
         quality="high",
+        response_format="b64_json",
     )
 
     img_b64 = response.data[0].b64_json
