@@ -1,13 +1,28 @@
 # LINEスタンプ AI生成スクリプト 依存ライブラリ
 # pip install -r stickers/requirements.txt
 
-# 画像処理
+# 画像処理 (必須)
 Pillow>=10.0.0
 numpy>=1.24.0
 scipy>=1.10.0
 
-# Nano Banana Pro (Gemini 3 Pro Image) - --api gemini 使用時
-google-genai>=1.0.0
+# AI背景除去 - rembg (完全無料・ローカル実行・U2Net)
+# --api huggingface / --api local の後処理、または --bg-remove rembg で単体利用
+rembg>=2.0.50
+onnxruntime>=1.16.0
 
+# Hugging Face FLUX.1-schnell (無料APIティア) - --api huggingface 使用時
+huggingface_hub>=0.23.0
+
+# ローカル Stable Diffusion / FLUX (GPU実行) - --api local 使用時
+# ※ GPU環境のみ: 必要なら別途インストール
+# diffusers>=0.27.0
+# torch>=2.1.0
+# transformers>=4.40.0
+# accelerate>=0.29.0
+
+# 有料API (オプション)
+# Nano Banana Pro (Gemini 3 Pro Image) - --api gemini 使用時
+# google-genai>=1.0.0
 # GPT Image 2 (OpenAI) - --api openai 使用時
-openai>=1.30.0
+# openai>=1.30.0

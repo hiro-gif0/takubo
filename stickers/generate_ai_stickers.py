@@ -2,21 +2,38 @@
 """
 LINEスタンプ AI画像生成スクリプト
 
-対応API:
-  --api gemini  → Nano Banana Pro (gemini-3-pro-image-preview)
-  --api openai  → GPT Image 2 (gpt-image-2)
+【無料で使えるAPI】
+  --api huggingface  → FLUX.1-schnell (Hugging Face 無料Inference API, Apache-2.0)
+  --api local        → ローカル Stable Diffusion / FLUX (GPU必要、完全無料)
 
-どちらもクロマキーグリーン (#00FF00) 背景で生成し、
-postprocess.py で透過PNGに変換してLINE規定サイズに整形する。
+【有料API (高品質)】
+  --api gemini  → Nano Banana Pro (gemini-3-pro-image-preview, ~$0.13/枚)
+  --api openai  → GPT Image 2 (gpt-image-2, 従量課金)
+
+【背景除去方法】
+  --bg-remove rembg      → rembg (AI背景除去、完全ローカル無料) ← 無料APIに最適
+  --bg-remove chromakey  → クロマキーグリーン除去 (Gemini/OpenAI API用)
 
 使い方:
-  export GEMINI_API_KEY="..."   # Nano Banana Pro用
-  export OPENAI_API_KEY="..."   # GPT Image 2用
+  # 無料: Hugging Face FLUX.1-schnell + rembg背景除去
+  python stickers/generate_ai_stickers.py --api huggingface
 
-  python stickers/generate_ai_stickers.py --api gemini
-  python stickers/generate_ai_stickers.py --api openai
-  python stickers/generate_ai_stickers.py --api gemini --ids 01_takubo_normal 02_takubo_victory
-  python stickers/generate_ai_stickers.py --api openai --dry-run
+  # 無料: ローカルGPU実行 (VRAM 8GB以上推奨)
+  python stickers/generate_ai_stickers.py --api local
+
+  # 有料: Nano Banana Pro
+  export GEMINI_API_KEY="..."
+  python stickers/generate_ai_stickers.py --api gemini --bg-remove chromakey
+
+  # 有料: GPT Image 2
+  export OPENAI_API_KEY="..."
+  python stickers/generate_ai_stickers.py --api openai --bg-remove chromakey
+
+  # 1枚だけ試す
+  python stickers/generate_ai_stickers.py --api huggingface --ids 01_takubo_normal
+
+  # プロンプト確認のみ (生成しない)
+  python stickers/generate_ai_stickers.py --api huggingface --dry-run
 """
 
 import argparse
@@ -30,39 +47,138 @@ from pathlib import Path
 
 from PIL import Image
 
-# postprocess.py は同ディレクトリ
 sys.path.insert(0, str(Path(__file__).parent))
 from postprocess import process_sticker_image
 
-# ---- パス設定 ----
 SCRIPT_DIR   = Path(__file__).parent
 PROMPTS_FILE = SCRIPT_DIR / "prompts.json"
 OUTPUT_DIR   = SCRIPT_DIR / "ai_dist"
 
-# ---- モデル設定 ----
 GEMINI_MODEL = "gemini-3-pro-image-preview"
 OPENAI_MODEL = "gpt-image-2"
-
-# ---- 画像サイズ (API側生成サイズ) ----
-GEMINI_ASPECT = "16:14"       # 横長 (370:320 ≈ 16:14)
-OPENAI_SIZE_DEFAULT = "1024x896"  # 近似比率 (gpt-image-2 は 1024x1024, 1536x1024, 1024x1536 のみ)
-OPENAI_SIZE_SQUARE  = "1024x1024"
+# FLUX.1-schnell: Apache-2.0ライセンス、商用利用可、無料
+HF_MODEL     = "black-forest-labs/FLUX.1-schnell"
+# ローカル実行用モデル (diffusers)
+LOCAL_MODEL  = "black-forest-labs/FLUX.1-schnell"
 
 
 # ---------------------------------------------------------------------------
 # プロンプト構築
 # ---------------------------------------------------------------------------
 
-def build_prompt(sticker: dict, character_style: str) -> str:
+def build_prompt(sticker: dict, character_style: str, use_chromakey: bool) -> str:
+    """
+    use_chromakey=True  → #00FF00 背景指定プロンプト (Gemini/OpenAI用)
+    use_chromakey=False → 白背景または背景なし指定 (HuggingFace/Local用)
+    """
+    bg_instruction = (
+        "isolated on a FLAT SOLID UNIFORM #00FF00 chromakey green background"
+        if use_chromakey
+        else "isolated on a plain white background"
+    )
+
     if sticker["id"] in ("06_council_smug", "07_council_angry", "08_takubo_vs_council",
                           "main_cover", "tab_icon"):
-        # これらは pose の中にスタイル指定が含まれている
-        return sticker["pose"]
-    return f"{character_style} {sticker['pose']}"
+        pose = sticker["pose"]
+        # 既存の#00FF00指定を白背景に差し替え
+        if not use_chromakey:
+            pose = pose.replace(
+                "on FLAT SOLID #00FF00 green background",
+                "on white background"
+            ).replace(
+                "on a FLAT SOLID #00FF00 green background",
+                "on a white background"
+            )
+        return pose
+
+    style = character_style
+    if not use_chromakey:
+        style = style.replace(
+            "isolated on a FLAT SOLID UNIFORM #00FF00 chromakey green background",
+            bg_instruction
+        )
+    return f"{style} {sticker['pose']}"
 
 
 # ---------------------------------------------------------------------------
-# Nano Banana Pro (Gemini 3 Pro Image)
+# 無料: Hugging Face Inference API (FLUX.1-schnell)
+# ---------------------------------------------------------------------------
+
+def generate_huggingface(prompt: str, sticker_id: str) -> Image.Image:
+    """
+    Hugging Face 無料 Inference API で FLUX.1-schnell を使用。
+    HF_TOKEN 環境変数: 未設定でも動作するが、設定するとレート制限が緩和される。
+    無料アカウントでも月2,000リクエストまで利用可能。
+    """
+    try:
+        from huggingface_hub import InferenceClient
+    except ImportError:
+        sys.exit("ERROR: huggingface_hub が未インストールです。pip install huggingface_hub を実行してください。")
+
+    hf_token = os.environ.get("HF_TOKEN")  # 任意: https://huggingface.co/settings/tokens で無料取得
+    client = InferenceClient(token=hf_token)
+
+    # FLUX.1-schnell は横長 (LINEスタンプ比率に近い) を生成
+    is_square = sticker_id in ("main_cover", "tab_icon")
+    width, height = (768, 768) if is_square else (896, 768)
+
+    img_bytes = client.text_to_image(
+        prompt=prompt,
+        model=HF_MODEL,
+        width=width,
+        height=height,
+        num_inference_steps=4,  # schnell は4ステップで高品質
+    )
+
+    if isinstance(img_bytes, Image.Image):
+        return img_bytes
+    return Image.open(io.BytesIO(img_bytes))
+
+
+# ---------------------------------------------------------------------------
+# 無料: ローカル GPU 実行 (FLUX.1-schnell via diffusers)
+# ---------------------------------------------------------------------------
+
+def generate_local(prompt: str, sticker_id: str) -> Image.Image:
+    """
+    ローカルGPUで FLUX.1-schnell を実行。完全無料・制限なし。
+    初回: モデルファイル (~23GB) を自動ダウンロード。
+    VRAM: 8GB以上推奨 (12GB以上で快適)。
+    """
+    try:
+        import torch
+        from diffusers import FluxPipeline
+    except ImportError:
+        sys.exit(
+            "ERROR: diffusers/torch が未インストールです。\n"
+            "pip install diffusers torch transformers accelerate を実行してください。"
+        )
+
+    if not hasattr(generate_local, "_pipe"):
+        print("  モデル読み込み中 (初回のみ)...", end="", flush=True)
+        pipe = FluxPipeline.from_pretrained(
+            LOCAL_MODEL,
+            torch_dtype=torch.bfloat16,
+        )
+        pipe.enable_model_cpu_offload()
+        generate_local._pipe = pipe
+        print(" 完了")
+
+    is_square = sticker_id in ("main_cover", "tab_icon")
+    width, height = (768, 768) if is_square else (896, 768)
+
+    result = generate_local._pipe(
+        prompt=prompt,
+        guidance_scale=0.0,   # schnell は CFG不要
+        num_inference_steps=4,
+        width=width,
+        height=height,
+    )
+    return result.images[0]
+
+
+# ---------------------------------------------------------------------------
+# 有料: Nano Banana Pro (Gemini 3 Pro Image)
 # ---------------------------------------------------------------------------
 
 def generate_gemini(prompt: str, sticker_id: str) -> Image.Image:
@@ -94,7 +210,7 @@ def generate_gemini(prompt: str, sticker_id: str) -> Image.Image:
 
 
 # ---------------------------------------------------------------------------
-# GPT Image 2 (OpenAI)
+# 有料: GPT Image 2 (OpenAI)
 # ---------------------------------------------------------------------------
 
 def generate_openai(prompt: str, sticker_id: str) -> Image.Image:
@@ -108,9 +224,7 @@ def generate_openai(prompt: str, sticker_id: str) -> Image.Image:
         sys.exit("ERROR: 環境変数 OPENAI_API_KEY が設定されていません。")
 
     client = OpenAI(api_key=api_key)
-
-    # gpt-image-2 は 1024x1024 / 1536x1024 / 1024x1536 のみサポート
-    size = OPENAI_SIZE_SQUARE if sticker_id in ("main_cover", "tab_icon") else "1536x1024"
+    size = "1024x1024" if sticker_id in ("main_cover", "tab_icon") else "1536x1024"
 
     response = client.images.generate(
         model=OPENAI_MODEL,
@@ -126,13 +240,58 @@ def generate_openai(prompt: str, sticker_id: str) -> Image.Image:
 
 
 # ---------------------------------------------------------------------------
+# API設定マップ
+# ---------------------------------------------------------------------------
+
+API_CONFIG = {
+    "huggingface": {
+        "fn":          generate_huggingface,
+        "label":       "FLUX.1-schnell (Hugging Face 無料API)",
+        "chromakey":   False,   # 白背景で生成 → rembg で除去
+        "default_bg":  "rembg",
+    },
+    "local": {
+        "fn":          generate_local,
+        "label":       "FLUX.1-schnell (ローカルGPU・完全無料)",
+        "chromakey":   False,
+        "default_bg":  "rembg",
+    },
+    "gemini": {
+        "fn":          generate_gemini,
+        "label":       "Nano Banana Pro (Gemini 3 Pro Image) ※有料",
+        "chromakey":   True,
+        "default_bg":  "chromakey",
+    },
+    "openai": {
+        "fn":          generate_openai,
+        "label":       "GPT Image 2 (OpenAI) ※有料",
+        "chromakey":   True,
+        "default_bg":  "chromakey",
+    },
+}
+
+
+# ---------------------------------------------------------------------------
 # メイン処理
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LINEスタンプ AI画像生成スクリプト")
-    parser.add_argument("--api", choices=["gemini", "openai"], required=True,
-                        help="使用するAPI: gemini (Nano Banana Pro) または openai (GPT Image 2)")
+    parser = argparse.ArgumentParser(
+        description="LINEスタンプ AI画像生成スクリプト",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--api",
+        choices=list(API_CONFIG.keys()),
+        required=True,
+        help="生成API: huggingface (無料) / local (無料GPU) / gemini (有料) / openai (有料)",
+    )
+    parser.add_argument(
+        "--bg-remove",
+        choices=["rembg", "chromakey"],
+        default=None,
+        help="背景除去方法 (省略時はAPIに応じて自動選択: 無料API→rembg, 有料API→chromakey)",
+    )
     parser.add_argument("--ids", nargs="*", default=None,
                         help="生成するスタンプIDを指定（省略時は全件）")
     parser.add_argument("--dry-run", action="store_true",
@@ -141,14 +300,16 @@ def main():
                         help="失敗時のリトライ回数（デフォルト: 3）")
     args = parser.parse_args()
 
-    # プロンプト定義読み込み
+    cfg = API_CONFIG[args.api]
+    bg_remove = args.bg_remove or cfg["default_bg"]
+    use_chromakey = cfg["chromakey"]
+
     with open(PROMPTS_FILE, encoding="utf-8") as f:
         data = json.load(f)
 
     character_style = data["character_style"]
     stickers = data["stickers"]
 
-    # ID フィルタ
     if args.ids:
         stickers = [s for s in stickers if s["id"] in args.ids]
         if not stickers:
@@ -156,15 +317,15 @@ def main():
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    generate_fn = generate_gemini if args.api == "gemini" else generate_openai
-
-    print(f"API: {'Nano Banana Pro (Gemini 3 Pro Image)' if args.api == 'gemini' else 'GPT Image 2 (OpenAI)'}")
-    print(f"生成件数: {len(stickers)} 枚\n")
+    print(f"API        : {cfg['label']}")
+    print(f"背景除去   : {bg_remove}")
+    print(f"生成件数   : {len(stickers)} 枚")
+    print(f"出力先     : {OUTPUT_DIR}\n")
 
     for i, sticker in enumerate(stickers, 1):
-        sid    = sticker["id"]
-        label  = sticker["label"]
-        prompt = build_prompt(sticker, character_style)
+        sid     = sticker["id"]
+        label   = sticker["label"]
+        prompt  = build_prompt(sticker, character_style, use_chromakey)
         outpath = OUTPUT_DIR / f"{sid}.png"
 
         print(f"[{i}/{len(stickers)}] {label} ({sid})")
@@ -173,22 +334,20 @@ def main():
             print(f"  [DRY-RUN] プロンプト:\n  {prompt}\n")
             continue
 
-        # リトライループ
         for attempt in range(1, args.retry + 1):
             try:
                 print(f"  生成中... (試行 {attempt}/{args.retry})", end="", flush=True)
-                raw_img = generate_fn(prompt, sid)
+                raw_img = cfg["fn"](prompt, sid)
                 print(" 完了")
 
-                # クロマキー除去 + リサイズ
-                print("  後処理（クロマキー除去・リサイズ）...", end="", flush=True)
-                processed = process_sticker_image(raw_img, sid)
+                print(f"  後処理 ({bg_remove} + リサイズ)...", end="", flush=True)
+                processed = process_sticker_image(raw_img, sid, bg_remove=bg_remove)
                 processed.save(outpath, "PNG")
                 size_kb = outpath.stat().st_size / 1024
                 print(f" 完了 → {outpath.name} ({size_kb:.1f} KB)")
 
                 if size_kb > 500:
-                    print(f"  ⚠️  警告: {size_kb:.0f} KB はLINE上限 500 KB を超えています。")
+                    print(f"  警告: {size_kb:.0f} KB はLINE上限500KBを超えています。")
                 break
 
             except Exception as e:
