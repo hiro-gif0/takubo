@@ -52,7 +52,7 @@ from postprocess import process_sticker_image
 
 SCRIPT_DIR   = Path(__file__).parent
 PROMPTS_FILE = SCRIPT_DIR / "prompts.json"
-OUTPUT_DIR   = SCRIPT_DIR / "ai_dist"
+OUTPUT_DIR   = SCRIPT_DIR / "ai_dist"   # --output-dir で上書き可
 
 GEMINI_MODEL = "gemini-3-pro-image-preview"
 OPENAI_MODEL = "gpt-image-2"
@@ -298,11 +298,24 @@ def main():
                         help="プロンプトを表示するだけで実際には生成しない")
     parser.add_argument("--retry", type=int, default=3,
                         help="失敗時のリトライ回数（デフォルト: 3）")
+    parser.add_argument("--output-dir", default=None,
+                        help="出力ディレクトリ (省略時は stickers/ai_dist/)")
+    parser.add_argument("--bg-model", default=None,
+                        help="rembg使用時の背景除去モデル名 (例: isnet-anime, birefnet-general)")
+    parser.add_argument("--lora", default=None,
+                        help="使用するLoRAモデルID (ローカル実行時のみ有効)")
+    parser.add_argument("--lora-trigger", default=None,
+                        help="LoRAのトリガーワード")
     args = parser.parse_args()
 
     cfg = API_CONFIG[args.api]
     bg_remove = args.bg_remove or cfg["default_bg"]
     use_chromakey = cfg["chromakey"]
+
+    # --output-dir が指定された場合は上書き
+    global OUTPUT_DIR
+    if args.output_dir:
+        OUTPUT_DIR = Path(args.output_dir)
 
     with open(PROMPTS_FILE, encoding="utf-8") as f:
         data = json.load(f)
@@ -341,7 +354,9 @@ def main():
                 print(" 完了")
 
                 print(f"  後処理 ({bg_remove} + リサイズ)...", end="", flush=True)
-                processed = process_sticker_image(raw_img, sid, bg_remove=bg_remove)
+                bg_model = getattr(args, "bg_model", None)
+                processed = process_sticker_image(raw_img, sid, bg_remove=bg_remove,
+                                                   bg_model=bg_model)
                 processed.save(outpath, "PNG")
                 size_kb = outpath.stat().st_size / 1024
                 print(f" 完了 → {outpath.name} ({size_kb:.1f} KB)")

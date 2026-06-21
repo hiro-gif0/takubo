@@ -1,0 +1,144 @@
+{
+  "_comment": "自動更新される知識ベース。research.py が HuggingFace/GitHub から最新情報を収集して上書きする。",
+  "last_updated": "2026-06-21",
+  "lora_models": [
+    {
+      "id": "prithivMLmods/Ton618-Only-Stickers-Flux-LoRA",
+      "trigger_word": "TON618",
+      "style_tags": [
+        "sticker",
+        "flat",
+        "outline"
+      ],
+      "base_model": "flux",
+      "license": "apache-2.0",
+      "source": "huggingface",
+      "rank": 1,
+      "notes": "スタンプ特化 LoRA。アウトライン強調、フラットカラー。"
+    },
+    {
+      "id": "diabolic6045/Flux_Sticker_Lora",
+      "trigger_word": "sticker",
+      "style_tags": [
+        "sticker",
+        "cartoon"
+      ],
+      "base_model": "flux",
+      "license": "apache-2.0",
+      "source": "huggingface",
+      "rank": 2,
+      "notes": "汎用スタンプ LoRA。"
+    },
+    {
+      "id": "alfredplpl/flux.1-dev-modern-anime-lora",
+      "trigger_word": "anime",
+      "style_tags": [
+        "anime",
+        "modern",
+        "chibi"
+      ],
+      "base_model": "flux",
+      "license": "apache-2.0",
+      "source": "huggingface",
+      "rank": 3,
+      "notes": "現代アニメ風 LoRA。チビキャラに向く。"
+    },
+    {
+      "id": "minpeter/LoRA-FLUX-anime-style-v2",
+      "trigger_word": "anime style",
+      "style_tags": [
+        "anime",
+        "clean"
+      ],
+      "base_model": "flux",
+      "license": "apache-2.0",
+      "source": "huggingface",
+      "rank": 4,
+      "notes": "クリーンなアニメスタイル v2。"
+    }
+  ],
+  "bg_removal_models": [
+    {
+      "id": "rembg/u2net",
+      "method": "rembg",
+      "model_name": "u2net",
+      "quality": "good",
+      "speed": "fast",
+      "notes": "汎用、デフォルト推奨"
+    },
+    {
+      "id": "rembg/birefnet-general",
+      "method": "rembg",
+      "model_name": "birefnet-general",
+      "quality": "excellent",
+      "speed": "medium",
+      "notes": "BiRefNet: エッジ精度が最高水準 (2024年SOTA)"
+    },
+    {
+      "id": "rembg/isnet-anime",
+      "method": "rembg",
+      "model_name": "isnet-anime",
+      "quality": "excellent",
+      "speed": "medium",
+      "notes": "アニメ・イラスト特化の背景除去。LINEスタンプに最適。"
+    },
+    {
+      "id": "chromakey",
+      "method": "chromakey",
+      "model_name": null,
+      "quality": "good",
+      "speed": "very_fast",
+      "notes": "クロマキーグリーン背景専用。Gemini/OpenAI APIで利用。"
+    }
+  ],
+  "prompt_strategies": [
+    {
+      "name": "chibi_sticker_base",
+      "template": "cute chibi anime character, {character_desc}, thick black outline, flat color shading, LINE sticker style, isolated on white background, no background",
+      "lora_trigger": "TON618",
+      "quality_modifier": "high quality, clean lines, vibrant colors",
+      "source": "community"
+    },
+    {
+      "name": "sticker_art_style",
+      "template": "sticker art, {character_desc}, bold outline, cartoon style, {pose_desc}, white background, vector-like",
+      "lora_trigger": "sticker",
+      "quality_modifier": "professional illustration, clean",
+      "source": "civitai_community"
+    },
+    {
+      "name": "nano_banana_pro",
+      "template": "{character_desc}, {pose_desc}, cute chibi style, bold outline, flat colors, isolated on a FLAT SOLID UNIFORM #00FF00 chromakey green background, no shadows",
+      "lora_trigger": null,
+      "quality_modifier": "",
+      "source": "philschmid_notebook"
+    }
+  ],
+  "github_workflows": [
+    {
+      "repo": "skyiron/stickerkitComfyui",
+      "description": "FLUX.1 + ComfyUI スタンプ生成ツールキット (NVIDIA H100 Hackathon 2025)",
+      "url": "https://github.com/skyiron/stickerkitComfyui",
+      "key_technique": "FLUX.1 + PuLID for character consistency"
+    },
+    {
+      "repo": "philschmid/gemini-samples",
+      "description": "Nano Banana Pro でクロマキースタンプ生成",
+      "url": "https://github.com/philschmid/gemini-samples",
+      "key_technique": "chromakey + HSV mask removal"
+    },
+    {
+      "repo": "1038lab/ComfyUI-RMBG",
+      "description": "RMBG-2.0, BiRefNet, BEN2 等の高精度背景除去",
+      "url": "https://github.com/1038lab/ComfyUI-RMBG",
+      "key_technique": "multi-model background removal ensemble"
+    },
+    {
+      "repo": "rootonchair/diffuser_layerdiffuse",
+      "description": "Layer Diffusion: native transparent image generation with diffusers",
+      "url": "https://github.com/rootonchair/diffuser_layerdiffuse",
+      "key_technique": "Layer Diffusion: native transparent image generation with diffusers"
+    }
+  ],
+  "evaluation_history": []
+}

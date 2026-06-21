@@ -17,17 +17,23 @@ _GREEN_SAT_MIN  = 150
 _GREEN_VAL_MIN  = 100
 
 
-def remove_background_rembg(img: Image.Image) -> Image.Image:
+def remove_background_rembg(img: Image.Image, model_name: str = "isnet-anime") -> Image.Image:
     """
-    rembg (U2Net) でAI背景除去を行う。完全ローカル・無料。
-    初回実行時にモデル (~170MB) が自動ダウンロードされる。
+    rembg でAI背景除去を行う。完全ローカル・無料。
+    初回実行時にモデルが自動ダウンロードされる。
+
+    model_name:
+        "isnet-anime"      — アニメ・イラスト特化 (デフォルト、LINEスタンプ最適)
+        "birefnet-general" — 汎用高精度 SOTA (エッジ最高精度)
+        "u2net"            — 高速・汎用
     """
     try:
-        from rembg import remove as rembg_remove
+        from rembg import remove as rembg_remove, new_session
     except ImportError:
         raise ImportError("rembg が未インストールです。pip install rembg を実行してください。")
 
-    return rembg_remove(img)
+    session = new_session(model_name)
+    return rembg_remove(img, session=session)
 
 
 def remove_chromakey_green(img: Image.Image, expand_mask: int = 2) -> Image.Image:
@@ -101,6 +107,7 @@ def process_sticker_image(
     img: Image.Image,
     sticker_id: str,
     bg_remove: str = "chromakey",
+    bg_model: str | None = None,
 ) -> Image.Image:
     """
     背景除去 + サイズ変換を一括実行。
@@ -108,9 +115,11 @@ def process_sticker_image(
     bg_remove:
         "chromakey" — クロマキーグリーン除去 (Gemini/OpenAI APIのクロマキー背景用)
         "rembg"     — AI背景除去 (HuggingFace/ローカル生成など白/複雑背景用)
+    bg_model: rembg 使用時のモデル名 (例: "isnet-anime", "birefnet-general")
     """
     if bg_remove == "rembg":
-        img = remove_background_rembg(img)
+        model = bg_model or "isnet-anime"
+        img = remove_background_rembg(img, model_name=model)
     else:
         img = remove_chromakey_green(img)
 
