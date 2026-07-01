@@ -1,58 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 320" width="370" height="320">
-  <!-- 03: タクボ 怒り「論点ずらし！」-->
-
-  <!-- 吹き出し (怒り: ギザギザ枠) -->
-  <polygon points="10,10 360,10 360,70 230,70 210,85 220,70 10,70" fill="#ffcccc" stroke="#cc0000" stroke-width="2"/>
-  <text x="20" y="48" font-family="'DotGothic16',monospace" font-size="18" fill="#cc0000">論点ずらし！</text>
-
-  <!-- 白髪 (逆立ち気味) -->
-  <rect x="140" y="95" width="70" height="10" fill="#e8e8e8"/>
-  <rect x="130" y="105" width="90" height="10" fill="#e8e8e8"/>
-  <rect x="130" y="80" width="10" height="35" fill="#e8e8e8"/>
-  <rect x="210" y="80" width="10" height="35" fill="#e8e8e8"/>
-  <!-- 髪の跳ね -->
-  <rect x="145" y="70" width="10" height="30" fill="#e8e8e8"/>
-  <rect x="215" y="65" width="10" height="30" fill="#e8e8e8"/>
-
-  <!-- 顔 (赤み) -->
-  <rect x="140" y="105" width="80" height="60" fill="#f5a070"/>
-  <!-- 怒り眉 (内側下がり) -->
-  <rect x="148" y="112" width="20" height="7" fill="#3a2010" transform="rotate(-8,158,116)"/>
-  <rect x="192" y="112" width="20" height="7" fill="#3a2010" transform="rotate(8,202,116)"/>
-  <!-- 目 (つり目) -->
-  <rect x="150" y="122" width="14" height="8" fill="#2c2c2c"/>
-  <rect x="196" y="122" width="14" height="8" fill="#2c2c2c"/>
-  <!-- 口 (への字) -->
-  <rect x="158" y="148" width="8" height="6" fill="#c07050"/>
-  <rect x="166" y="154" width="28" height="6" fill="#c07050"/>
-  <rect x="194" y="148" width="8" height="6" fill="#c07050"/>
-  <!-- 怒りマーク -->
-  <rect x="215" y="107" width="8" height="20" fill="#ff4444"/>
-  <rect x="208" y="107" width="20" height="8" fill="#ff4444"/>
-
-  <!-- 首 -->
-  <rect x="165" y="165" width="30" height="10" fill="#f5a070"/>
-
-  <!-- 服 -->
-  <rect x="120" y="175" width="120" height="70" fill="#f6ad55"/>
-  <rect x="160" y="175" width="40" height="20" fill="#fff8e1"/>
-
-  <!-- 左腕: 指差し -->
-  <rect x="60" y="185" width="60" height="25" fill="#f6ad55"/>
-  <rect x="20" y="183" width="45" height="18" fill="#f5c89a"/>
-  <rect x="12" y="183" width="15" height="12" fill="#f5c89a"/>
-
-  <!-- 右腕: 腰に当てて -->
-  <rect x="240" y="175" width="30" height="60" fill="#f6ad55"/>
-  <rect x="250" y="225" width="30" height="20" fill="#f5c89a"/>
-
-  <!-- スカート -->
-  <rect x="120" y="245" width="120" height="40" fill="#8a5030"/>
-
-  <!-- 脚 -->
-  <rect x="140" y="285" width="30" height="20" fill="#f5c89a"/>
-  <rect x="180" y="285" width="30" height="20" fill="#f5c89a"/>
-  <!-- 靴 -->
-  <rect x="135" y="300" width="40" height="15" fill="#3a2010"/>
-  <rect x="175" y="300" width="40" height="15" fill="#3a2010"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="370" height="320" viewBox="0 0 370 320">
+<defs>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">    <feDropShadow dx="2" dy="3" stdDeviation="2" flood-color="#00000030"/>  </filter>
+</defs>
+<ellipse cx="185" cy="75" rx="44" ry="48" fill="#C8C8C8" stroke="#1A1206" stroke-width="0" />
+<path d="M 143,88 Q 137,33 185,23 Q 233,33 227,88 Z" fill="#EFEFEF" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 145,93 Q 133,118 147,133" fill="none" stroke="#C8C8C8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 225,93 Q 237,118 223,133" fill="none" stroke="#C8C8C8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<ellipse cx="185" cy="83" rx="42" ry="50" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
+<ellipse cx="157" cy="95" rx="10" ry="7" fill="#FFB3A7" stroke="none" stroke-width="0" />
+<ellipse cx="213" cy="95" rx="10" ry="7" fill="#FFB3A7" stroke="none" stroke-width="0" />
+<path d="M 163,65 L 177,71" fill="none" stroke="#1A1206" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 207,65 L 193,71" fill="none" stroke="#1A1206" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 163,77 Q 171,81 179,77 Q 171,85 Z" fill="#2B1D0E" stroke="#1A1206" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 207,77 Q 199,81 191,77 Q 199,85 Z" fill="#2B1D0E" stroke="#1A1206" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 171,109 Q 185,105 199,109" fill="#FFFFFF" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 171,109 Q 185,105 199,109" fill="none" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="173" y="127" width="24" height="14" rx="5" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
+<path d="M 137,139 Q 135,204 143,214 L 227,214 Q 235,204 233,139 Z" fill="#F47D20" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 173,139 L 169,189 L 185,194 L 201,189 L 197,139 Z" fill="#FFFFFF" stroke="#1A1206" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<circle cx="185" cy="157" r="3" fill="#C55E0A" stroke="#1A1206" stroke-width="1.5"/>
+<circle cx="185" cy="171" r="3" fill="#C55E0A" stroke="#1A1206" stroke-width="1.5"/>
+<circle cx="185" cy="185" r="3" fill="#C55E0A" stroke="#1A1206" stroke-width="1.5"/>
+<path d="M 173,139 L 165,169 L 185,179 Z" fill="#C55E0A" stroke="none" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 197,139 L 205,169 L 185,179 Z" fill="#C55E0A" stroke="none" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 137,144 Q 125,179 135,204 Q 145,209 149,199 Q 141,177 151,147 Z" fill="#F47D20" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<ellipse cx="133" cy="207" rx="12" ry="10" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
+<path d="M 233,144 Q 245,179 235,204 Q 225,209 221,199 Q 229,177 219,147 Z" fill="#F47D20" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<ellipse cx="237" cy="207" rx="12" ry="10" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
+<path d="M 141,213 Q 135,258 139,268 L 231,268 Q 235,258 229,213 Z" fill="#1C3557" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="155" y="265" width="22" height="35" rx="4" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
+<rect x="193" y="265" width="22" height="35" rx="4" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
+<path d="M 151,297 Q 157,313 175,313 Q 179,307 177,297 Z" fill="#2A1505" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 191,297 Q 197,313 215,313 Q 219,307 217,297 Z" fill="#2A1505" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<text x="223" y="55" font-size="22" font-weight="normal" font-family="sans-serif" fill="#E03020" text-anchor="middle">💢</text>
+<path d="M 233,144 Q 257,149 263,167 Q 251,173 243,163 Q 239,151 219,147 Z" fill="#F47D20" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<ellipse cx="267" cy="169" rx="12" ry="10" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
+<path d="M 137,144 Q 113,149 107,167 Q 119,173 127,163 Q 131,151 151,147 Z" fill="#F47D20" stroke="#1A1206" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<ellipse cx="103" cy="169" rx="12" ry="10" fill="#FFCF9E" stroke="#1A1206" stroke-width="3" />
 </svg>
