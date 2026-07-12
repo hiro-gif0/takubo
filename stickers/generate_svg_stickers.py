@@ -2,8 +2,11 @@
 """
 generate_svg_stickers.py — 可愛いちびキャラLINEスタンプ生成
 
-ちびキャラ比率 (頭2:体1) + 大きな目 + 丸みのあるフォルムで
-「愛敬のある」スタンプを生成する。
+Kindchenschema比率 適用版:
+  - 頭部 rx=68 ry=80 (全高の約55%)
+  - 目   19×26px (顔高の33%)
+  - 眉   感情別に急角度
+  - 体   コンパクト (body_h=56, sk_h=36, leg_h=24)
 
 使い方:
   python stickers/generate_svg_stickers.py
@@ -25,11 +28,11 @@ SVG_DIR    = SCRIPT_DIR / "src"
 # ── パレット ──────────────────────────────────────────────
 P = {
     "skin":     "#FFE0B8",
-    "skin_s":   "#F5C08A",   # 影
+    "skin_s":   "#F5C08A",
     "hair":     "#F4F4F4",   # タクボ白髪
     "hair_s":   "#C8C8CE",
-    "hair_hi":  "#FFFFFF",   # ハイライト
-    "jacket":   "#F58220",   # オレンジジャケット
+    "hair_hi":  "#FFFFFF",
+    "jacket":   "#F58220",
     "jacket_s": "#C86010",
     "collar":   "#FFF8F0",
     "skirt":    "#1D3461",
@@ -38,7 +41,7 @@ P = {
     "stocking": "#F5D0B0",
     "eye":      "#2B1D0E",
     "pupil_hi": "#FFFFFF",
-    "cheek":    "#FFAAB0",   # ほっぺピンク
+    "cheek":    "#FFAAB0",
     "mouth":    "#E05060",
     "teeth":    "#FFFEF8",
     "glasses":  "#4A3010",
@@ -61,7 +64,7 @@ P = {
     "speech":   "#FEFEF0",
 }
 OL = P["outline"]
-SW = 3.5   # 基本アウトライン幅
+SW = 3.5
 
 
 # ── SVG プリミティブ ──────────────────────────────────────
@@ -132,350 +135,326 @@ def speech_bubble(x, y, w, h, tail_x, tail_y, fill=P["speech"], stroke=OL, sw=SW
 
 
 # ══════════════════════════════════════════════════════════
-# タクボ市長 ちびキャラ
-# 設計: cx=185 を中心, head_top=20 から描画
-# 頭の半径: rx=68 ry=72 (大きくて丸い)
-# 全体高: ~290px に収める
+# タクボ市長 ちびキャラ  (Kindchenschema版)
+# 頭部: rx=68 ry=80  目: 19×26  全高: ~300px
 # ══════════════════════════════════════════════════════════
 
 def _takubo_head(cx, hy, emotion="normal"):
-    """顔・髪・眼鏡を描く"""
+    """顔・髪・眼鏡を描く (Kindchenschema: 大頭 rx=68 ry=80, 大目 19×26)"""
     s = ""
 
-    # ── 白髪 (ボブ、後ろ側) ──────────────────────────────
-    # 髪のベース (顔より後ろ)
+    # ── 白髪ボブ (顔より後ろ) ────────────────────────────
     s += pa(
-        f"M {cx-62},{hy+20} "
-        f"Q {cx-72},{hy-30} {cx-50},{hy-72} "
-        f"Q {cx-25},{hy-90} {cx},{hy-92} "
-        f"Q {cx+25},{hy-90} {cx+50},{hy-72} "
-        f"Q {cx+72},{hy-30} {cx+62},{hy+20} Z",
+        f"M {cx-66},{hy+22} "
+        f"Q {cx-76},{hy-32} {cx-54},{hy-78} "
+        f"Q {cx-27},{hy-94} {cx},{hy-96} "
+        f"Q {cx+27},{hy-94} {cx+54},{hy-78} "
+        f"Q {cx+76},{hy-32} {cx+66},{hy+22} Z",
         P["hair"], OL, SW
     )
-    # サイドの流れ (左右のボブが少し外に広がる)
+    # サイドの流れ
     s += pa(
-        f"M {cx-62},{hy+20} Q {cx-75},{hy+40} {cx-65},{hy+58} Q {cx-58},{hy+68} {cx-48},{hy+65}",
+        f"M {cx-66},{hy+22} Q {cx-79},{hy+42} {cx-68},{hy+62} Q {cx-60},{hy+72} {cx-50},{hy+68}",
         "none", P["hair_s"], 4
     )
     s += pa(
-        f"M {cx+62},{hy+20} Q {cx+75},{hy+40} {cx+65},{hy+58} Q {cx+58},{hy+68} {cx+48},{hy+65}",
+        f"M {cx+66},{hy+22} Q {cx+79},{hy+42} {cx+68},{hy+62} Q {cx+60},{hy+72} {cx+50},{hy+68}",
         "none", P["hair_s"], 4
     )
     # ハイライト
     s += pa(
-        f"M {cx-20},{hy-88} Q {cx},{hy-96} {cx+20},{hy-85}",
+        f"M {cx-22},{hy-92} Q {cx},{hy-100} {cx+22},{hy-89}",
         "none", P["hair_hi"], 5
     )
 
-    # ── 顔 ──────────────────────────────────────────────
-    s += el(cx, hy, 60, 68, P["skin"])
+    # ── 顔 (大きく丸い) ──────────────────────────────────
+    s += el(cx, hy, 68, 80, P["skin"])
 
-    # ── ほっぺ (大きめ、透過気味) ──────────────────────
-    s += el(cx-38, hy+18, 16, 10, P["cheek"],
+    # ── ほっぺ (大きめ) ────────────────────────────────
+    s += el(cx-46, hy+30, 23, 15, P["cheek"],
             stroke="none", sw=0, extra='opacity="0.7"')
-    s += el(cx+38, hy+18, 16, 10, P["cheek"],
+    s += el(cx+46, hy+30, 23, 15, P["cheek"],
             stroke="none", sw=0, extra='opacity="0.7"')
 
-    # ── 眉 ──────────────────────────────────────────────
+    # ── 眉 (感情別・急角度) ──────────────────────────────
     if emotion == "angry":
-        s += pa(f"M {cx-30},{hy-28} Q {cx-18},{hy-18} {cx-8},{hy-24}",
-                "none", OL, 4)
-        s += pa(f"M {cx+30},{hy-28} Q {cx+18},{hy-18} {cx+8},{hy-24}",
-                "none", OL, 4)
+        # つり眉：外側↑内側↓ (14px の高低差)
+        s += pa(f"M {cx-34},{hy-50} Q {cx-20},{hy-44} {cx-8},{hy-38}",
+                "none", OL, 4.5)
+        s += pa(f"M {cx+34},{hy-50} Q {cx+20},{hy-44} {cx+8},{hy-38}",
+                "none", OL, 4.5)
     elif emotion == "sad":
-        s += pa(f"M {cx-30},{hy-20} Q {cx-20},{hy-28} {cx-8},{hy-22}",
-                "none", OL, 3.5)
-        s += pa(f"M {cx+30},{hy-20} Q {cx+20},{hy-28} {cx+8},{hy-22}",
-                "none", OL, 3.5)
+        # ハの字：内側↑外側↓ (12px の高低差)
+        s += pa(f"M {cx-34},{hy-42} Q {cx-20},{hy-46} {cx-8},{hy-54}",
+                "none", OL, 4)
+        s += pa(f"M {cx+34},{hy-42} Q {cx+20},{hy-46} {cx+8},{hy-54}",
+                "none", OL, 4)
     elif emotion in ("smug", "smug2"):
-        s += pa(f"M {cx-30},{hy-24} Q {cx-20},{hy-30} {cx-8},{hy-25}",
+        # 片眉だけ上げる
+        s += pa(f"M {cx-34},{hy-46} Q {cx-20},{hy-54} {cx-8},{hy-48}",
                 "none", OL, 3.5)
-        s += pa(f"M {cx+30},{hy-32} Q {cx+20},{hy-24} {cx+8},{hy-28}",
+        s += pa(f"M {cx+34},{hy-54} Q {cx+20},{hy-46} {cx+8},{hy-50}",
                 "none", OL, 4)
     else:
-        s += pa(f"M {cx-30},{hy-25} Q {cx-20},{hy-32} {cx-8},{hy-26}",
+        # 通常：やや上向きアーチ
+        s += pa(f"M {cx-34},{hy-46} Q {cx-20},{hy-56} {cx-8},{hy-48}",
                 "none", OL, 3.5)
-        s += pa(f"M {cx+30},{hy-25} Q {cx+20},{hy-32} {cx+8},{hy-26}",
+        s += pa(f"M {cx+34},{hy-46} Q {cx+20},{hy-56} {cx+8},{hy-48}",
                 "none", OL, 3.5)
 
-    # ── 目 (大きくてキラキラ) ───────────────────────────
-    ex_l, ex_r = cx - 22, cx + 22
-    ey = hy - 8
+    # ── 目 (19×26 キラキラ) ──────────────────────────────
+    ex_l, ex_r = cx - 26, cx + 26
+    ey = hy - 14
 
     if emotion == "crying":
-        # うるうる大きな瞳
-        s += el(ex_l, ey, 14, 16, P["skin_s"], stroke="none")  # まぶた影
-        s += el(ex_r, ey, 14, 16, P["skin_s"], stroke="none")
-        s += el(ex_l, ey+1, 13, 15, "#D8F0FF")
-        s += el(ex_r, ey+1, 13, 15, "#D8F0FF")
-        s += ci(ex_l, ey+2, 9, P["eye"])
-        s += ci(ex_r, ey+2, 9, P["eye"])
-        s += ci(ex_l-3, ey-4, 3, P["pupil_hi"], stroke="none")
-        s += ci(ex_r-3, ey-4, 3, P["pupil_hi"], stroke="none")
-        s += ci(ex_l+2, ey+3, 1.5, P["pupil_hi"], stroke="none")
-        s += ci(ex_r+2, ey+3, 1.5, P["pupil_hi"], stroke="none")
-        # まつ毛
-        for dx in [-6, 0, 6]:
-            s += li(ex_l+dx, ey-14, ex_l+dx-1, ey-20, OL, 2)
-            s += li(ex_r+dx, ey-14, ex_r+dx+1, ey-20, OL, 2)
-        # 涙
-        s += pa(f"M {ex_l-6},{ey+14} Q {ex_l-8},{ey+30} {ex_l-4},{ey+44}",
+        s += el(ex_l, ey, 19, 26, P["skin_s"], stroke="none")
+        s += el(ex_r, ey, 19, 26, P["skin_s"], stroke="none")
+        s += el(ex_l, ey+1, 18, 25, "#D8F0FF")
+        s += el(ex_r, ey+1, 18, 25, "#D8F0FF")
+        s += ci(ex_l, ey+2, 15, P["eye"])
+        s += ci(ex_r, ey+2, 15, P["eye"])
+        s += ci(ex_l-5, ey-6, 5, P["pupil_hi"], stroke="none")
+        s += ci(ex_r-5, ey-6, 5, P["pupil_hi"], stroke="none")
+        s += ci(ex_l+4, ey+5, 2.5, P["pupil_hi"], stroke="none")
+        s += ci(ex_r+4, ey+5, 2.5, P["pupil_hi"], stroke="none")
+        for dx in [-8, 0, 8]:
+            s += li(ex_l+dx, ey-24, ex_l+dx-1, ey-32, OL, 2)
+            s += li(ex_r+dx, ey-24, ex_r+dx+1, ey-32, OL, 2)
+        s += pa(f"M {ex_l-8},{ey+24} Q {ex_l-10},{ey+42} {ex_l-5},{ey+56}",
                 "none", P["tear"], 3.5)
-        s += pa(f"M {ex_r+6},{ey+14} Q {ex_r+8},{ey+30} {ex_r+4},{ey+44}",
+        s += pa(f"M {ex_r+8},{ey+24} Q {ex_r+10},{ey+42} {ex_r+5},{ey+56}",
                 "none", P["tear"], 3.5)
-        # 涙のしずく
-        s += el(ex_l-4, ey+48, 4, 6, P["tear"], stroke=P["blue"], sw=1)
-        s += el(ex_r+4, ey+48, 4, 6, P["tear"], stroke=P["blue"], sw=1)
+        s += el(ex_l-5, ey+60, 5, 8, P["tear"], stroke=P["blue"], sw=1)
+        s += el(ex_r+5, ey+60, 5, 8, P["tear"], stroke=P["blue"], sw=1)
 
     elif emotion == "angry":
         # つり目
-        s += pa(f"M {ex_l-14},{ey-4} Q {ex_l},{ey+6} {ex_l+12},{ey-2} "
-                f"Q {ex_l},{ey+14} {ex_l-14},{ey+4} Z",
+        s += pa(f"M {ex_l-19},{ey-4} Q {ex_l},{ey+8} {ex_l+18},{ey-2} "
+                f"Q {ex_l},{ey+18} {ex_l-19},{ey+6} Z",
                 P["eye"])
-        s += pa(f"M {ex_r-12},{ey-2} Q {ex_r},{ey+6} {ex_r+14},{ey-4} "
-                f"Q {ex_r+14},{ey+4} {ex_r},{ey+14} Z",
+        s += pa(f"M {ex_r-18},{ey-2} Q {ex_r},{ey+8} {ex_r+19},{ey-4} "
+                f"Q {ex_r+19},{ey+6} {ex_r},{ey+18} Z",
                 P["eye"])
-        s += ci(ex_l-2, ey+1, 2.5, P["pupil_hi"], stroke="none")
-        s += ci(ex_r+2, ey+1, 2.5, P["pupil_hi"], stroke="none")
-        # 怒りプチライン
-        s += li(ex_l-14, ey-4, ex_l-22, ey-14, OL, 3)
-        s += li(ex_r+14, ey-4, ex_r+22, ey-14, OL, 3)
+        s += ci(ex_l-2, ey+2, 3.5, P["pupil_hi"], stroke="none")
+        s += ci(ex_r+2, ey+2, 3.5, P["pupil_hi"], stroke="none")
+        s += li(ex_l-19, ey-4, ex_l-30, ey-18, OL, 3.5)
+        s += li(ex_r+19, ey-4, ex_r+30, ey-18, OL, 3.5)
 
     elif emotion in ("smug", "smug2"):
         # 半目ニヤリ
-        s += el(ex_l, ey+2, 13, 11, "#D0F0E0")
-        s += el(ex_r, ey+2, 13, 11, "#D0F0E0")
-        s += ci(ex_l, ey+3, 8, P["eye"])
-        s += ci(ex_r+2, ey+3, 8, P["eye"])
-        # 上まぶた (半分隠す)
-        s += pa(f"M {ex_l-14},{ey+2} Q {ex_l},{ey-10} {ex_l+14},{ey+2}",
+        s += el(ex_l, ey+2, 18, 15, "#D0F0E0")
+        s += el(ex_r, ey+2, 18, 15, "#D0F0E0")
+        s += ci(ex_l, ey+3, 12, P["eye"])
+        s += ci(ex_r+2, ey+3, 12, P["eye"])
+        s += pa(f"M {ex_l-19},{ey+2} Q {ex_l},{ey-14} {ex_l+19},{ey+2}",
                 P["skin"], stroke="none")
-        s += pa(f"M {ex_r-14},{ey+2} Q {ex_r},{ey-10} {ex_r+14},{ey+2}",
+        s += pa(f"M {ex_r-19},{ey+2} Q {ex_r},{ey-14} {ex_r+19},{ey+2}",
                 P["skin"], stroke="none")
-        s += pa(f"M {ex_l-14},{ey+2} Q {ex_l},{ey-10} {ex_l+14},{ey+2}",
+        s += pa(f"M {ex_l-19},{ey+2} Q {ex_l},{ey-14} {ex_l+19},{ey+2}",
                 "none", OL, 3)
-        s += pa(f"M {ex_r-14},{ey+2} Q {ex_r},{ey-10} {ex_r+14},{ey+2}",
+        s += pa(f"M {ex_r-19},{ey+2} Q {ex_r},{ey-14} {ex_r+19},{ey+2}",
                 "none", OL, 3)
-        s += ci(ex_l-3, ey-2, 2.5, P["pupil_hi"], stroke="none")
-        s += ci(ex_r-1, ey-2, 2.5, P["pupil_hi"], stroke="none")
+        s += ci(ex_l-4, ey-3, 3.5, P["pupil_hi"], stroke="none")
+        s += ci(ex_r-2, ey-3, 3.5, P["pupil_hi"], stroke="none")
 
     else:
-        # 通常の丸くて大きな目
-        s += el(ex_l, ey, 14, 16, "#E8F5FF")
-        s += el(ex_r, ey, 14, 16, "#E8F5FF")
-        s += ci(ex_l, ey+1, 10, P["eye"])
-        s += ci(ex_r, ey+1, 10, P["eye"])
-        s += ci(ex_l-4, ey-4, 3.5, P["pupil_hi"], stroke="none")
-        s += ci(ex_r-4, ey-4, 3.5, P["pupil_hi"], stroke="none")
-        s += ci(ex_l+2, ey+3, 1.8, P["pupil_hi"], stroke="none")
-        s += ci(ex_r+2, ey+3, 1.8, P["pupil_hi"], stroke="none")
-        # まつ毛
-        for dx in [-4, 4]:
-            s += li(ex_l+dx, ey-15, ex_l+dx-1, ey-21, OL, 2)
-            s += li(ex_r+dx, ey-15, ex_r+dx+1, ey-21, OL, 2)
+        # 通常の大きくてキラキラした目
+        s += el(ex_l, ey, 19, 26, "#E8F5FF")
+        s += el(ex_r, ey, 19, 26, "#E8F5FF")
+        s += ci(ex_l, ey+1, 15, P["eye"])
+        s += ci(ex_r, ey+1, 15, P["eye"])
+        s += ci(ex_l-6, ey-6, 5, P["pupil_hi"], stroke="none")
+        s += ci(ex_r-6, ey-6, 5, P["pupil_hi"], stroke="none")
+        s += ci(ex_l+3, ey+5, 2.5, P["pupil_hi"], stroke="none")
+        s += ci(ex_r+3, ey+5, 2.5, P["pupil_hi"], stroke="none")
+        for dx in [-6, 6]:
+            s += li(ex_l+dx, ey-25, ex_l+dx-1, ey-33, OL, 2)
+            s += li(ex_r+dx, ey-25, ex_r+dx+1, ey-33, OL, 2)
 
     # 目のアウトライン
     if emotion not in ("angry",):
-        s += el(ex_l, ey, 14, 16, "none", OL, SW)
-        s += el(ex_r, ey, 14, 16, "none", OL, SW)
+        s += el(ex_l, ey, 19, 26, "none", OL, SW)
+        s += el(ex_r, ey, 19, 26, "none", OL, SW)
 
-    # ── 鼻 (小さな丸) ──────────────────────────────────
-    s += ci(cx, hy+8, 3, P["skin_s"], stroke="none")
+    # ── 鼻 ──────────────────────────────────────────────
+    s += ci(cx, hy+16, 4, P["skin_s"], stroke="none")
 
     # ── 口 ──────────────────────────────────────────────
-    my = hy + 32
+    my = hy + 48
     if emotion == "normal":
-        s += pa(f"M {cx-12},{my} Q {cx},{my+10} {cx+12},{my}",
+        s += pa(f"M {cx-14},{my} Q {cx},{my+12} {cx+14},{my}",
                 "none", P["mouth"], 3.5)
     elif emotion in ("happy", "battle", "victory"):
-        # 大きな笑顔
-        s += pa(f"M {cx-18},{my-2} Q {cx},{my+22} {cx+18},{my-2}",
+        s += pa(f"M {cx-20},{my-2} Q {cx},{my+24} {cx+20},{my-2}",
                 P["teeth"])
-        s += pa(f"M {cx-18},{my-2} Q {cx},{my+22} {cx+18},{my-2}",
+        s += pa(f"M {cx-20},{my-2} Q {cx},{my+24} {cx+20},{my-2}",
                 "none", P["mouth"], 3.5)
-        # 舌 (ガッツのみ)
         if emotion == "victory":
-            s += el(cx, my+14, 8, 6, "#FF8090", stroke=P["mouth"], sw=2)
+            s += el(cx, my+16, 9, 7, "#FF8090", stroke=P["mouth"], sw=2)
     elif emotion == "crying":
-        s += pa(f"M {cx-14},{my+8} Q {cx},{my-2} {cx+14},{my+8}",
+        s += pa(f"M {cx-16},{my+10} Q {cx},{my-2} {cx+16},{my+10}",
                 "none", P["mouth"], 3.5)
     elif emotion == "angry":
-        s += pa(f"M {cx-16},{my+6} Q {cx},{my} {cx+16},{my+6}",
+        s += pa(f"M {cx-18},{my+8} Q {cx},{my} {cx+18},{my+8}",
                 P["teeth"])
-        s += pa(f"M {cx-16},{my+6} Q {cx},{my} {cx+16},{my+6}",
+        s += pa(f"M {cx-18},{my+8} Q {cx},{my} {cx+18},{my+8}",
                 "none", P["mouth"], 3.5)
     elif emotion == "sad":
-        s += pa(f"M {cx-12},{my+6} Q {cx},{my-4} {cx+12},{my+6}",
+        s += pa(f"M {cx-14},{my+8} Q {cx},{my-4} {cx+14},{my+8}",
                 "none", P["mouth"], 3.5)
     elif emotion in ("smug", "smug2"):
-        s += pa(f"M {cx-4},{my+4} Q {cx+4},{my+14} {cx+16},{my+2}",
+        s += pa(f"M {cx-4},{my+4} Q {cx+4},{my+16} {cx+18},{my+2}",
                 "none", P["mouth"], 3.5)
     else:
-        s += pa(f"M {cx-12},{my} Q {cx},{my+10} {cx+12},{my}",
+        s += pa(f"M {cx-14},{my} Q {cx},{my+12} {cx+14},{my}",
                 "none", P["mouth"], 3.5)
 
-    # ── 眼鏡 (タクボ市長の最大特徴！) ──────────────────
-    gx_l, gx_r = cx - 22, cx + 22
-    gy = hy - 8
-    gr = 17   # レンズ半径
+    # ── 眼鏡 (タクボ市長の最大特徴！gr=20) ─────────────
+    gx_l, gx_r = cx - 26, cx + 26
+    gy = hy - 14
+    gr = 20
     gcol = P["glasses"]
     gsw = 3.5
-    # 左レンズ
     s += ci(gx_l, gy, gr, "none", gcol, gsw)
-    # 右レンズ
     s += ci(gx_r, gy, gr, "none", gcol, gsw)
-    # ブリッジ
     s += li(gx_l+gr, gy, gx_r-gr, gy, gcol, gsw)
-    # テンプル (左)
-    s += li(gx_l-gr, gy, gx_l-gr-18, gy-5, gcol, gsw)
-    # テンプル (右)
-    s += li(gx_r+gr, gy, gx_r+gr+18, gy-5, gcol, gsw)
+    s += li(gx_l-gr, gy, gx_l-gr-22, gy-6, gcol, gsw)
+    s += li(gx_r+gr, gy, gx_r+gr+22, gy-6, gcol, gsw)
 
     return s
 
 
 def _takubo_body(cx, body_top, pose="normal"):
-    """胴体・腕・スカート・脚を描く"""
+    """胴体・腕・スカート・脚 (コンパクト: body_h=56 sk_h=36 leg_h=24)"""
     s = ""
-    bt = body_top  # 胴体上端
+    bt = body_top
 
     # ── 首 ──────────────────────────────────────────────
     s += rc(cx-10, bt-12, 20, 18, P["skin"], rx=6)
 
-    # ── 胴体 (オレンジジャケット) ───────────────────────
-    body_h = 75
+    # ── 胴体 ─────────────────────────────────────────────
+    body_h = 56
     s += pa(
-        f"M {cx-42},{bt} Q {cx-46},{bt+body_h} {cx-38},{bt+body_h+8} "
-        f"L {cx+38},{bt+body_h+8} Q {cx+46},{bt+body_h} {cx+42},{bt} "
+        f"M {cx-42},{bt} Q {cx-46},{bt+body_h} {cx-38},{bt+body_h+6} "
+        f"L {cx+38},{bt+body_h+6} Q {cx+46},{bt+body_h} {cx+42},{bt} "
         f"Q {cx+20},{bt-6} {cx},{bt-4} Q {cx-20},{bt-6} Z",
         P["jacket"]
     )
-    # 内側のハイライト
     s += pa(
-        f"M {cx-30},{bt+4} Q {cx-26},{bt+body_h-10} {cx-16},{bt+body_h}",
-        "none", P["jacket_s"] if False else "#FFB060", 3, extra='opacity="0.4"'
+        f"M {cx-30},{bt+4} Q {cx-26},{bt+body_h-8} {cx-16},{bt+body_h}",
+        "none", "#FFB060", 3, extra='opacity="0.4"'
     )
 
     # ── 白い襟/インナー ─────────────────────────────────
     s += pa(
-        f"M {cx-10},{bt} L {cx-15},{bt+body_h-5} L {cx},{bt+body_h+2} "
-        f"L {cx+15},{bt+body_h-5} L {cx+10},{bt} Z",
+        f"M {cx-10},{bt} L {cx-14},{bt+body_h-4} L {cx},{bt+body_h+2} "
+        f"L {cx+14},{bt+body_h-4} L {cx+10},{bt} Z",
         P["collar"], OL, 2
     )
-    # ボタン (3つ)
     for i in range(3):
-        by = bt + 18 + i * 20
-        s += ci(cx, by, 4, P["jacket_s"], OL, 2)
+        by = bt + 14 + i * 14
+        s += ci(cx, by, 3.5, P["jacket_s"], OL, 2)
 
-    # ── 腕の分岐 ─────────────────────────────────────
+    # ── 腕 ─────────────────────────────────────────────
     if pose == "victory":
-        # 右腕を突き上げる
-        # 左腕 (普通)
         s += pa(
-            f"M {cx-42},{bt+8} Q {cx-58},{bt+45} {cx-52},{bt+68} "
-            f"Q {cx-40},{bt+75} {cx-34},{bt+62} Q {cx-40},{bt+42} {cx-30},{bt+10} Z",
+            f"M {cx-42},{bt+6} Q {cx-58},{bt+34} {cx-52},{bt+51} "
+            f"Q {cx-40},{bt+56} {cx-34},{bt+46} Q {cx-40},{bt+31} {cx-30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx-52, bt+72, 13, 11, P["skin"])
-        # 右腕 (上へ!)
+        s += el(cx-52, bt+54, 11, 9, P["skin"])
         s += pa(
-            f"M {cx+42},{bt+8} Q {cx+58},{bt-10} {cx+62},{bt-50} "
-            f"Q {cx+50},{bt-60} {cx+38},{bt-48} Q {cx+44},{bt-14} {cx+30},{bt+10} Z",
+            f"M {cx+42},{bt+6} Q {cx+58},{bt-8} {cx+62},{bt-37} "
+            f"Q {cx+50},{bt-45} {cx+38},{bt-36} Q {cx+44},{bt-10} {cx+30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx+60, bt-54, 13, 12, P["skin"])
-        # こぶし
-        s += pa(f"M {cx+50},{bt-68} Q {cx+52},{bt-80} {cx+68},{bt-78} "
-                f"Q {cx+72},{bt-68} {cx+70},{bt-60} Q {cx+58},{bt-58} Z",
+        s += el(cx+60, bt-40, 11, 10, P["skin"])
+        s += pa(f"M {cx+50},{bt-52} Q {cx+52},{bt-62} {cx+68},{bt-60} "
+                f"Q {cx+72},{bt-50} {cx+70},{bt-44} Q {cx+58},{bt-42} Z",
                 P["skin"])
     elif pose == "angry":
-        # 両腕を広げる
         s += pa(
-            f"M {cx-42},{bt+8} Q {cx-68},{bt+12} {cx-76},{bt+32} "
-            f"Q {cx-64},{bt+42} {cx-56},{bt+30} Q {cx-50},{bt+15} {cx-30},{bt+10} Z",
+            f"M {cx-42},{bt+6} Q {cx-68},{bt+9} {cx-76},{bt+24} "
+            f"Q {cx-64},{bt+32} {cx-56},{bt+22} Q {cx-50},{bt+11} {cx-30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx-80, bt+36, 13, 11, P["skin"])
+        s += el(cx-80, bt+28, 11, 9, P["skin"])
         s += pa(
-            f"M {cx+42},{bt+8} Q {cx+68},{bt+12} {cx+76},{bt+32} "
-            f"Q {cx+64},{bt+42} {cx+56},{bt+30} Q {cx+50},{bt+15} {cx+30},{bt+10} Z",
+            f"M {cx+42},{bt+6} Q {cx+68},{bt+9} {cx+76},{bt+24} "
+            f"Q {cx+64},{bt+32} {cx+56},{bt+22} Q {cx+50},{bt+11} {cx+30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx+80, bt+36, 13, 11, P["skin"])
+        s += el(cx+80, bt+28, 11, 9, P["skin"])
     elif pose == "battle":
-        # 右手を前に
         s += pa(
-            f"M {cx-42},{bt+8} Q {cx-58},{bt+45} {cx-52},{bt+68} "
-            f"Q {cx-40},{bt+75} {cx-34},{bt+62} Q {cx-40},{bt+42} {cx-30},{bt+10} Z",
+            f"M {cx-42},{bt+6} Q {cx-58},{bt+34} {cx-52},{bt+51} "
+            f"Q {cx-40},{bt+56} {cx-34},{bt+46} Q {cx-40},{bt+31} {cx-30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx-52, bt+72, 13, 11, P["skin"])
+        s += el(cx-52, bt+54, 11, 9, P["skin"])
         s += pa(
-            f"M {cx+42},{bt+8} Q {cx+62},{bt+22} {cx+70},{bt+48} "
-            f"Q {cx+58},{bt+58} {cx+50},{bt+46} Q {cx+44},{bt+26} {cx+30},{bt+10} Z",
+            f"M {cx+42},{bt+6} Q {cx+62},{bt+16} {cx+70},{bt+36} "
+            f"Q {cx+58},{bt+43} {cx+50},{bt+34} Q {cx+44},{bt+19} {cx+30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx+74, bt+52, 13, 11, P["skin"])
+        s += el(cx+74, bt+39, 11, 9, P["skin"])
     else:
-        # 通常 両腕下げ
         s += pa(
-            f"M {cx-42},{bt+8} Q {cx-58},{bt+45} {cx-52},{bt+68} "
-            f"Q {cx-40},{bt+75} {cx-34},{bt+62} Q {cx-40},{bt+42} {cx-30},{bt+10} Z",
+            f"M {cx-42},{bt+6} Q {cx-58},{bt+34} {cx-52},{bt+51} "
+            f"Q {cx-40},{bt+56} {cx-34},{bt+46} Q {cx-40},{bt+31} {cx-30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx-52, bt+72, 13, 11, P["skin"])
+        s += el(cx-52, bt+54, 11, 9, P["skin"])
         s += pa(
-            f"M {cx+42},{bt+8} Q {cx+58},{bt+45} {cx+52},{bt+68} "
-            f"Q {cx+40},{bt+75} {cx+34},{bt+62} Q {cx+40},{bt+42} {cx+30},{bt+10} Z",
+            f"M {cx+42},{bt+6} Q {cx+58},{bt+34} {cx+52},{bt+51} "
+            f"Q {cx+40},{bt+56} {cx+34},{bt+46} Q {cx+40},{bt+31} {cx+30},{bt+8} Z",
             P["jacket"]
         )
-        s += el(cx+52, bt+72, 13, 11, P["skin"])
+        s += el(cx+52, bt+54, 11, 9, P["skin"])
 
     # ── スカート ─────────────────────────────────────────
-    sk_top = bt + body_h + 8
-    sk_h = 50
+    sk_top = bt + body_h + 6
+    sk_h = 36
     s += pa(
-        f"M {cx-40},{sk_top} Q {cx-46},{sk_top+sk_h} {cx-40},{sk_top+sk_h+6} "
-        f"L {cx+40},{sk_top+sk_h+6} Q {cx+46},{sk_top+sk_h} {cx+40},{sk_top} Z",
+        f"M {cx-40},{sk_top} Q {cx-46},{sk_top+sk_h} {cx-40},{sk_top+sk_h+5} "
+        f"L {cx+40},{sk_top+sk_h+5} Q {cx+46},{sk_top+sk_h} {cx+40},{sk_top} Z",
         P["skirt"]
     )
-    # スカートのシャドウ
     s += pa(
-        f"M {cx-40},{sk_top} Q {cx-44},{sk_top+30} {cx-38},{sk_top+sk_h+4}",
+        f"M {cx-40},{sk_top} Q {cx-44},{sk_top+20} {cx-38},{sk_top+sk_h+3}",
         "none", P["skirt_s"], 4, extra='opacity="0.5"'
     )
 
     # ── 脚 ──────────────────────────────────────────────
-    leg_top = sk_top + sk_h + 6
-    leg_h = 38
+    leg_top = sk_top + sk_h + 5
+    leg_h = 24
     s += rc(cx-28, leg_top, 20, leg_h, P["stocking"], rx=6)
     s += rc(cx+8,  leg_top, 20, leg_h, P["stocking"], rx=6)
 
     # ── 靴 ──────────────────────────────────────────────
     foot_y = leg_top + leg_h
     s += pa(
-        f"M {cx-32},{foot_y} Q {cx-28},{foot_y+16} {cx-8},{foot_y+16} "
-        f"Q {cx-2},{foot_y+10} {cx-6},{foot_y} Z",
+        f"M {cx-32},{foot_y} Q {cx-28},{foot_y+12} {cx-8},{foot_y+12} "
+        f"Q {cx-2},{foot_y+8} {cx-6},{foot_y} Z",
         P["shoe"]
     )
     s += pa(
-        f"M {cx+4},{foot_y} Q {cx+8},{foot_y+10} {cx+14},{foot_y+16} "
-        f"Q {cx+34},{foot_y+16} {cx+38},{foot_y+6} Q {cx+34},{foot_y} Z",
+        f"M {cx+4},{foot_y} Q {cx+8},{foot_y+8} {cx+14},{foot_y+12} "
+        f"Q {cx+34},{foot_y+12} {cx+38},{foot_y+4} Q {cx+34},{foot_y} Z",
         P["shoe"]
     )
-    # 靴のつや
-    s += pa(f"M {cx-26},{foot_y+2} Q {cx-22},{foot_y+6} {cx-18},{foot_y+4}",
+    s += pa(f"M {cx-26},{foot_y+2} Q {cx-22},{foot_y+5} {cx-18},{foot_y+3}",
             "none", "#888", 1.5)
-    s += pa(f"M {cx+10},{foot_y+2} Q {cx+14},{foot_y+6} {cx+18},{foot_y+4}",
+    s += pa(f"M {cx+10},{foot_y+2} Q {cx+14},{foot_y+5} {cx+18},{foot_y+3}",
             "none", "#888", 1.5)
 
     return s
 
 
-def takubo(cx=185, head_top=18, emotion="normal", body_pose="normal"):
-    """タクボ市長の完全ちびキャラ"""
-    hy = head_top + 72   # 頭の中心Y
-    body_top = hy + 70   # 胴体上端
+def takubo(cx=185, head_top=10, emotion="normal", body_pose="normal"):
+    """タクボ市長の完全ちびキャラ (head_top=10, hy=90, body_top=172)"""
+    hy = head_top + 80   # 頭の中心Y = 90
+    body_top = hy + 82   # 胴体上端 = 172
 
     s = _takubo_head(cx, hy, emotion)
     s += _takubo_body(cx, body_top, body_pose)
@@ -486,115 +465,115 @@ def takubo(cx=185, head_top=18, emotion="normal", body_pose="normal"):
 # 市議会キャラ (中年男性・スーツ)
 # ══════════════════════════════════════════════════════════
 
-def council(cx=185, head_top=18, emotion="normal"):
-    hy = head_top + 72
+def council(cx=185, head_top=10, emotion="normal"):
+    hy = head_top + 80
     s = ""
 
     # ── 黒髪 (短く整えた) ──────────────────────────────
     s += pa(
-        f"M {cx-62},{hy+15} Q {cx-72},{hy-25} {cx-46},{hy-74} "
-        f"Q {cx-22},{hy-90} {cx},{hy-88} "
-        f"Q {cx+22},{hy-90} {cx+46},{hy-74} "
-        f"Q {cx+72},{hy-25} {cx+62},{hy+15} Z",
+        f"M {cx-66},{hy+18} Q {cx-76},{hy-28} {cx-50},{hy-78} "
+        f"Q {cx-25},{hy-94} {cx},{hy-92} "
+        f"Q {cx+25},{hy-94} {cx+50},{hy-78} "
+        f"Q {cx+76},{hy-28} {cx+66},{hy+18} Z",
         P["c_hair"], OL, SW
     )
-    # つむじ線
-    s += pa(f"M {cx-8},{hy-84} Q {cx},{hy-88} {cx+8},{hy-84}",
+    s += pa(f"M {cx-8},{hy-88} Q {cx},{hy-92} {cx+8},{hy-88}",
             "none", "#444", 2)
-    # サイドの影
-    s += pa(f"M {cx-60},{hy+10} Q {cx-65},{hy+25} {cx-58},{hy+36}",
+    s += pa(f"M {cx-64},{hy+12} Q {cx-69},{hy+28} {cx-62},{hy+40}",
             "none", "#111", 3)
-    s += pa(f"M {cx+60},{hy+10} Q {cx+65},{hy+25} {cx+58},{hy+36}",
+    s += pa(f"M {cx+64},{hy+12} Q {cx+69},{hy+28} {cx+62},{hy+40}",
             "none", "#111", 3)
 
     # ── 顔 ──────────────────────────────────────────────
-    s += el(cx, hy, 60, 68, P["skin"])
+    s += el(cx, hy, 68, 80, P["skin"])
 
     # ほっぺ
-    s += el(cx-38, hy+18, 14, 9, P["cheek"], stroke="none", sw=0, extra='opacity="0.5"')
-    s += el(cx+38, hy+18, 14, 9, P["cheek"], stroke="none", sw=0, extra='opacity="0.5"')
+    s += el(cx-46, hy+30, 20, 13, P["cheek"], stroke="none", sw=0, extra='opacity="0.5"')
+    s += el(cx+46, hy+30, 20, 13, P["cheek"], stroke="none", sw=0, extra='opacity="0.5"')
 
     # ── 眉 ──────────────────────────────────────────────
     if emotion == "smug":
-        s += pa(f"M {cx-30},{hy-24} Q {cx-20},{hy-30} {cx-8},{hy-25}",
+        s += pa(f"M {cx-34},{hy-46} Q {cx-20},{hy-54} {cx-8},{hy-48}",
                 "none", P["c_hair"], 4)
-        s += pa(f"M {cx+30},{hy-32} Q {cx+20},{hy-24} {cx+8},{hy-28}",
+        s += pa(f"M {cx+34},{hy-54} Q {cx+20},{hy-46} {cx+8},{hy-50}",
                 "none", P["c_hair"], 4.5)
     elif emotion == "angry":
-        s += pa(f"M {cx-30},{hy-30} L {cx-8},{hy-22}", "none", P["c_hair"], 4.5)
-        s += pa(f"M {cx+30},{hy-30} L {cx+8},{hy-22}", "none", P["c_hair"], 4.5)
+        # つり眉 (14px 差)
+        s += pa(f"M {cx-34},{hy-50} Q {cx-20},{hy-44} {cx-8},{hy-38}",
+                "none", P["c_hair"], 4.5)
+        s += pa(f"M {cx+34},{hy-50} Q {cx+20},{hy-44} {cx+8},{hy-38}",
+                "none", P["c_hair"], 4.5)
     else:
-        s += pa(f"M {cx-30},{hy-26} Q {cx-20},{hy-32} {cx-8},{hy-27}",
+        s += pa(f"M {cx-34},{hy-46} Q {cx-20},{hy-56} {cx-8},{hy-48}",
                 "none", P["c_hair"], 4)
-        s += pa(f"M {cx+30},{hy-26} Q {cx+20},{hy-32} {cx+8},{hy-27}",
+        s += pa(f"M {cx+34},{hy-46} Q {cx+20},{hy-56} {cx+8},{hy-48}",
                 "none", P["c_hair"], 4)
 
     # ── 目 ──────────────────────────────────────────────
-    ex_l, ex_r = cx - 22, cx + 22
-    ey = hy - 8
+    ex_l, ex_r = cx - 26, cx + 26
+    ey = hy - 14
 
     if emotion == "smug":
-        s += el(ex_l, ey+2, 13, 9, "#DDEEDD")
-        s += el(ex_r, ey+2, 13, 9, "#DDEEDD")
-        s += ci(ex_l-2, ey+3, 7, P["eye"])
-        s += ci(ex_r+2, ey+3, 7, P["eye"])
-        # 上まぶた (半目)
-        s += pa(f"M {ex_l-14},{ey+3} Q {ex_l},{ey-8} {ex_l+14},{ey+3}",
+        s += el(ex_l, ey+2, 17, 13, "#DDEEDD")
+        s += el(ex_r, ey+2, 17, 13, "#DDEEDD")
+        s += ci(ex_l-2, ey+3, 10, P["eye"])
+        s += ci(ex_r+2, ey+3, 10, P["eye"])
+        s += pa(f"M {ex_l-18},{ey+3} Q {ex_l},{ey-12} {ex_l+18},{ey+3}",
                 P["skin"], stroke="none")
-        s += pa(f"M {ex_r-14},{ey+3} Q {ex_r},{ey-8} {ex_r+14},{ey+3}",
+        s += pa(f"M {ex_r-18},{ey+3} Q {ex_r},{ey-12} {ex_r+18},{ey+3}",
                 P["skin"], stroke="none")
-        s += pa(f"M {ex_l-14},{ey+3} Q {ex_l},{ey-8} {ex_l+14},{ey+3}",
+        s += pa(f"M {ex_l-18},{ey+3} Q {ex_l},{ey-12} {ex_l+18},{ey+3}",
                 "none", OL, 3)
-        s += pa(f"M {ex_r-14},{ey+3} Q {ex_r},{ey-8} {ex_r+14},{ey+3}",
+        s += pa(f"M {ex_r-18},{ey+3} Q {ex_r},{ey-12} {ex_r+18},{ey+3}",
                 "none", OL, 3)
-        s += ci(ex_l-3, ey-1, 2.5, P["pupil_hi"], stroke="none")
-        s += ci(ex_r+1, ey-1, 2.5, P["pupil_hi"], stroke="none")
+        s += ci(ex_l-4, ey-2, 3, P["pupil_hi"], stroke="none")
+        s += ci(ex_r+2, ey-2, 3, P["pupil_hi"], stroke="none")
     elif emotion == "angry":
-        s += pa(f"M {ex_l-13},{ey-4} Q {ex_l},{ey+8} {ex_l+12},{ey-2} "
-                f"Q {ex_l},{ey+16} {ex_l-13},{ey+6} Z", P["eye"])
-        s += pa(f"M {ex_r-12},{ey-2} Q {ex_r},{ey+8} {ex_r+13},{ey-4} "
-                f"Q {ex_r+13},{ey+6} {ex_r},{ey+16} Z", P["eye"])
-        s += ci(ex_l-2, ey+2, 2.5, P["pupil_hi"], stroke="none")
-        s += ci(ex_r+2, ey+2, 2.5, P["pupil_hi"], stroke="none")
+        s += pa(f"M {ex_l-18},{ey-4} Q {ex_l},{ey+10} {ex_l+17},{ey-2} "
+                f"Q {ex_l},{ey+20} {ex_l-18},{ey+8} Z", P["eye"])
+        s += pa(f"M {ex_r-17},{ey-2} Q {ex_r},{ey+10} {ex_r+18},{ey-4} "
+                f"Q {ex_r+18},{ey+8} {ex_r},{ey+20} Z", P["eye"])
+        s += ci(ex_l-2, ey+3, 3, P["pupil_hi"], stroke="none")
+        s += ci(ex_r+2, ey+3, 3, P["pupil_hi"], stroke="none")
     else:
-        s += el(ex_l, ey, 13, 15, "#E8EEFF")
-        s += el(ex_r, ey, 13, 15, "#E8EEFF")
-        s += ci(ex_l, ey+1, 9, P["eye"])
-        s += ci(ex_r, ey+1, 9, P["eye"])
-        s += ci(ex_l-3, ey-3, 3, P["pupil_hi"], stroke="none")
-        s += ci(ex_r-3, ey-3, 3, P["pupil_hi"], stroke="none")
-        s += el(ex_l, ey, 13, 15, "none", OL, SW)
-        s += el(ex_r, ey, 13, 15, "none", OL, SW)
+        s += el(ex_l, ey, 17, 22, "#E8EEFF")
+        s += el(ex_r, ey, 17, 22, "#E8EEFF")
+        s += ci(ex_l, ey+1, 13, P["eye"])
+        s += ci(ex_r, ey+1, 13, P["eye"])
+        s += ci(ex_l-4, ey-4, 4, P["pupil_hi"], stroke="none")
+        s += ci(ex_r-4, ey-4, 4, P["pupil_hi"], stroke="none")
+        s += el(ex_l, ey, 17, 22, "none", OL, SW)
+        s += el(ex_r, ey, 17, 22, "none", OL, SW)
 
     # 鼻
-    s += ci(cx, hy+8, 3.5, P["skin_s"], stroke="none")
+    s += ci(cx, hy+16, 4, P["skin_s"], stroke="none")
 
     # ── 口 ──────────────────────────────────────────────
-    my = hy + 32
+    my = hy + 48
     if emotion == "smug":
-        s += pa(f"M {cx-4},{my+2} Q {cx+4},{my+14} {cx+18},{my}",
+        s += pa(f"M {cx-4},{my+4} Q {cx+4},{my+16} {cx+18},{my+2}",
                 "none", P["mouth"], 3.5)
     elif emotion == "angry":
-        s += pa(f"M {cx-16},{my+6} Q {cx},{my} {cx+16},{my+6}",
+        s += pa(f"M {cx-18},{my+8} Q {cx},{my} {cx+18},{my+8}",
                 P["teeth"])
-        s += pa(f"M {cx-16},{my+6} Q {cx},{my} {cx+16},{my+6}",
+        s += pa(f"M {cx-18},{my+8} Q {cx},{my} {cx+18},{my+8}",
                 "none", P["mouth"], 3.5)
     else:
-        s += pa(f"M {cx-12},{my} Q {cx},{my+9} {cx+12},{my}",
+        s += pa(f"M {cx-14},{my} Q {cx},{my+12} {cx+14},{my}",
                 "none", P["mouth"], 3.5)
 
     # ── 胴体 (スーツ) ───────────────────────────────────
-    body_top = hy + 70
+    body_top = hy + 82
     bt = body_top
-    body_h = 75
+    body_h = 56
 
     # 首
     s += rc(cx-10, bt-12, 20, 18, P["skin"], rx=6)
 
     # スーツ
     s += pa(
-        f"M {cx-42},{bt} Q {cx-46},{bt+body_h} {cx-38},{bt+body_h+8} "
-        f"L {cx+38},{bt+body_h+8} Q {cx+46},{bt+body_h} {cx+42},{bt} "
+        f"M {cx-42},{bt} Q {cx-46},{bt+body_h} {cx-38},{bt+body_h+6} "
+        f"L {cx+38},{bt+body_h+6} Q {cx+46},{bt+body_h} {cx+42},{bt} "
         f"Q {cx+20},{bt-6} {cx},{bt-4} Q {cx-20},{bt-6} Z",
         P["c_suit"]
     )
@@ -606,68 +585,66 @@ def council(cx=185, head_top=18, emotion="normal"):
     )
     # ネクタイ
     s += pa(
-        f"M {cx-5},{bt+4} L {cx+5},{bt+4} L {cx+8},{bt+30} "
+        f"M {cx-5},{bt+4} L {cx+5},{bt+4} L {cx+8},{bt+22} "
         f"L {cx+4},{bt+body_h-2} L {cx},{bt+body_h+2} "
-        f"L {cx-4},{bt+body_h-2} L {cx-8},{bt+30} Z",
+        f"L {cx-4},{bt+body_h-2} L {cx-8},{bt+22} Z",
         P["c_tie"], OL, 2
     )
-    # ネクタイノット
     s += pa(f"M {cx-5},{bt+4} L {cx+5},{bt+4} L {cx},{bt+14} Z",
             P["c_tie"], OL, 1.5)
 
     # 腕
     if emotion == "angry":
         s += pa(
-            f"M {cx-42},{bt+8} Q {cx-68},{bt+14} {cx-74},{bt+34} "
-            f"Q {cx-62},{bt+44} {cx-54},{bt+32} Q {cx-50},{bt+16} {cx-30},{bt+10} Z",
+            f"M {cx-42},{bt+6} Q {cx-68},{bt+9} {cx-76},{bt+24} "
+            f"Q {cx-64},{bt+32} {cx-56},{bt+22} Q {cx-50},{bt+11} {cx-30},{bt+8} Z",
             P["c_suit"]
         )
-        s += el(cx-78, bt+38, 12, 10, P["skin"])
+        s += el(cx-80, bt+28, 11, 9, P["skin"])
         s += pa(
-            f"M {cx+42},{bt+8} Q {cx+68},{bt+14} {cx+74},{bt+34} "
-            f"Q {cx+62},{bt+44} {cx+54},{bt+32} Q {cx+50},{bt+16} {cx+30},{bt+10} Z",
+            f"M {cx+42},{bt+6} Q {cx+68},{bt+9} {cx+76},{bt+24} "
+            f"Q {cx+64},{bt+32} {cx+56},{bt+22} Q {cx+50},{bt+11} {cx+30},{bt+8} Z",
             P["c_suit"]
         )
-        s += el(cx+78, bt+38, 12, 10, P["skin"])
+        s += el(cx+80, bt+28, 11, 9, P["skin"])
     else:
         s += pa(
-            f"M {cx-42},{bt+8} Q {cx-58},{bt+46} {cx-52},{bt+70} "
-            f"Q {cx-40},{bt+76} {cx-34},{bt+62} Q {cx-40},{bt+44} {cx-30},{bt+10} Z",
+            f"M {cx-42},{bt+6} Q {cx-58},{bt+34} {cx-52},{bt+52} "
+            f"Q {cx-40},{bt+57} {cx-34},{bt+47} Q {cx-40},{bt+32} {cx-30},{bt+8} Z",
             P["c_suit"]
         )
-        s += el(cx-52, bt+72, 12, 10, P["skin"])
+        s += el(cx-52, bt+55, 11, 9, P["skin"])
         s += pa(
-            f"M {cx+42},{bt+8} Q {cx+58},{bt+46} {cx+52},{bt+70} "
-            f"Q {cx+40},{bt+76} {cx+34},{bt+62} Q {cx+40},{bt+44} {cx+30},{bt+10} Z",
+            f"M {cx+42},{bt+6} Q {cx+58},{bt+34} {cx+52},{bt+52} "
+            f"Q {cx+40},{bt+57} {cx+34},{bt+47} Q {cx+40},{bt+32} {cx+30},{bt+8} Z",
             P["c_suit"]
         )
-        s += el(cx+52, bt+72, 12, 10, P["skin"])
+        s += el(cx+52, bt+55, 11, 9, P["skin"])
 
     # ズボン
-    sk_top = bt + body_h + 8
-    sk_h = 50
+    sk_top = bt + body_h + 6
+    sk_h = 36
     s += pa(
-        f"M {cx-40},{sk_top} Q {cx-46},{sk_top+sk_h} {cx-40},{sk_top+sk_h+6} "
-        f"L {cx+40},{sk_top+sk_h+6} Q {cx+46},{sk_top+sk_h} {cx+40},{sk_top} Z",
+        f"M {cx-40},{sk_top} Q {cx-46},{sk_top+sk_h} {cx-40},{sk_top+sk_h+5} "
+        f"L {cx+40},{sk_top+sk_h+5} Q {cx+46},{sk_top+sk_h} {cx+40},{sk_top} Z",
         P["c_suit_s"]
     )
-    # センタープレス
     s += li(cx, sk_top, cx, sk_top+sk_h+4, "#8890B0", 1.5)
 
     # 脚・靴
-    leg_top = sk_top + sk_h + 6
-    leg_h = 38
+    leg_top = sk_top + sk_h + 5
+    leg_h = 24
     s += rc(cx-28, leg_top, 20, leg_h, P["c_suit_s"], rx=6)
     s += rc(cx+8,  leg_top, 20, leg_h, P["c_suit_s"], rx=6)
     foot_y = leg_top + leg_h
     s += pa(
-        f"M {cx-32},{foot_y} Q {cx-28},{foot_y+16} {cx-8},{foot_y+16} "
-        f"Q {cx-2},{foot_y+10} {cx-6},{foot_y} Z",
+        f"M {cx-32},{foot_y} Q {cx-28},{foot_y+12} {cx-8},{foot_y+12} "
+        f"Q {cx-2},{foot_y+8} {cx-6},{foot_y} Z",
         P["shoe"]
     )
     s += pa(
-        f"M {cx+4},{foot_y} Q {cx+8},{foot_y+10} {cx+14},{foot_y+16} "
-        f"Q {cx+34},{foot_y+16} {cx+38},{foot_y+6} Q {cx+34},{foot_y} Z",
+        f"M {cx+4},{foot_y} Q {cx+8},{foot_y+8} {cx+14},{foot_y+12} "
+        f"Q {cx+34},{foot_y+12} {cx+38},{foot_y+4} Q {cx+34},{foot_y} Z",
         P["shoe"]
     )
 
@@ -679,14 +656,11 @@ def council(cx=185, head_top=18, emotion="normal"):
 # ══════════════════════════════════════════════════════════
 
 def make_01_normal():
-    """01: タクボ 通常 — にっこり手を振る"""
+    """01: タクボ 通常 — にっこり"""
     s = svg_open()
-    # ハート飾り
     s += heart(50, 60, 14, P["heart"], stroke=P["mouth"], sw=2)
     s += heart(310, 80, 10, P["heart"], stroke=P["mouth"], sw=2)
-    # キャラ
     s += takubo(emotion="normal", body_pose="normal")
-    # 吹き出し
     s += speech_bubble(220, 36, 110, 44, 242, 80)
     s += tx(275, 65, "よろしく！", size=17)
     s += svg_close()
@@ -695,18 +669,15 @@ def make_01_normal():
 def make_02_victory():
     """02: タクボ ガッツ — 右手突き上げ大笑顔"""
     s = svg_open()
-    # エフェクト光線
     for i in range(8):
         a = math.radians(i * 45)
         x2 = 185 + 200 * math.cos(a)
         y2 = 155 + 200 * math.sin(a)
         s += li(185, 155, x2, y2, P["yellow"], 8, "round")
         s += li(185, 155, x2, y2, "#FFF8A0", 4, "round")
-    # 星
     for (sx, sy, sr) in [(60, 40, 12), (308, 50, 10), (50, 240, 9), (320, 200, 11)]:
         s += star_shape(sx, sy, sr, sr*0.45, 5, P["star"], OL, 1.5)
     s += takubo(emotion="victory", body_pose="victory")
-    # ガッツポーズ吹き出し
     s += speech_bubble(200, 30, 130, 46, 230, 78)
     s += tx(265, 60, "やったぞ！", size=17)
     s += svg_close()
@@ -715,17 +686,14 @@ def make_02_victory():
 def make_03_angry():
     """03: タクボ 怒り — 両腕広げ叫ぶ"""
     s = svg_open()
-    # 怒りオーラ
     for i in range(6):
         a = math.radians(i * 60 + 10)
         x2 = 185 + 180 * math.cos(a)
         y2 = 145 + 180 * math.sin(a)
         s += li(185, 145, x2, y2, "#FF4020", 6)
     s += takubo(emotion="angry", body_pose="angry")
-    # 怒りマーク
     s += pa("M 298,55 L 308,40 L 318,55 L 308,52 Z", P["red"])
     s += pa("M 308,52 L 308,64", "none", P["red"], 5)
-    # 吹き出し
     s += speech_bubble(30, 50, 112, 46, 100, 95)
     s += tx(86, 80, "もう限界！", size=16)
     s += svg_close()
@@ -734,7 +702,6 @@ def make_03_angry():
 def make_04_crying():
     """04: タクボ 泣き — 大泣き"""
     s = svg_open()
-    # 雨のような涙の粒
     for (tx2, ty2, tr) in [(80, 260, 6), (90, 280, 4), (270, 265, 5), (285, 285, 4)]:
         s += el(tx2, ty2, tr, tr*1.5, P["tear"], stroke=P["blue"], sw=1.5)
     s += takubo(emotion="crying", body_pose="normal")
@@ -746,7 +713,6 @@ def make_04_crying():
 def make_05_battle():
     """05: タクボ バトル — 構えポーズ"""
     s = svg_open()
-    # 後光エフェクト
     for i in range(10):
         a = math.radians(i * 36)
         x2 = 185 + 180 * math.cos(a)
@@ -762,11 +728,9 @@ def make_05_battle():
 def make_06_council_smug():
     """06: 市議会 ニヤリ"""
     s = svg_open()
-    # ダーク背景ライン
     for i in range(5):
         s += li(0, 60 + i*40, 370, 60 + i*40, "#E8EFF8", 1)
     s += council(emotion="smug")
-    # ニヤリ吹き出し
     s += speech_bubble(196, 28, 144, 50, 228, 78)
     s += tx(268, 52, "ふっ…", size=17)
     s += tx(268, 72, "甘いな", size=17)
@@ -776,14 +740,12 @@ def make_06_council_smug():
 def make_07_council_angry():
     """07: 市議会 不信任動議"""
     s = svg_open()
-    # 赤い雰囲気
     for i in range(4):
         a = math.radians(i * 45 + 22)
         x2 = 185 + 200 * math.cos(a)
         y2 = 145 + 200 * math.sin(a)
         s += li(185, 145, x2, y2, "#FF2020", 5, "round")
     s += council(emotion="angry")
-    # 不信任状 (斜め)
     s += rc(40, 198, 110, 80, "#FEFEE8", OL, 2.5, rx=4,
             extra='transform="rotate(-8 95 238)"')
     s += f'<text x="95" y="228" font-size="15" font-weight="bold" font-family="sans-serif" fill="{P["red"]}" text-anchor="middle" transform="rotate(-8 95 238)">不信任</text>\n'
@@ -794,27 +756,22 @@ def make_07_council_angry():
 def make_08_vs():
     """08: タクボ VS 市議会 対決"""
     s = svg_open()
-    # 放射バースト
     for i in range(16):
         a = math.radians(i * 22.5)
         x2 = 185 + 280 * math.cos(a)
         y2 = 155 + 280 * math.sin(a)
         col = P["yellow"] if i % 2 == 0 else "#FFF4B0"
         s += li(185, 155, x2, y2, col, 14)
-    # 対角分割
     s += pa("M 0,0 L 185,155 L 370,0 Z", "#FFF8E0", stroke="none")
     s += pa("M 0,320 L 185,155 L 370,320 Z", "#E8F0FF", stroke="none")
 
-    # タクボ (左, 小さめ)
     s += f'<g transform="translate(-72,12) scale(0.82,0.82)">\n'
     s += takubo(cx=185, emotion="battle", body_pose="battle")
     s += "</g>\n"
-    # 市議会 (右, ミラー)
     s += f'<g transform="translate(443,12) scale(-0.82,0.82)">\n'
     s += council(cx=185, emotion="angry")
     s += "</g>\n"
 
-    # VS バッジ
     s += ci(185, 155, 34, P["red"])
     s += ci(185, 155, 30, "#FF4040")
     s += tx(185, 163, "VS", size=28, fill="white")
@@ -824,14 +781,11 @@ def make_08_vs():
 
 def make_main_cover():
     s = svg_open(240, 240)
-    # 背景グラデーション風
     s += rc(0, 0, 240, 240, "#FFF8F0", stroke="none", sw=0)
     s += el(120, 120, 118, 118, "#FFF0E0", stroke="#F4C080", sw=3)
-    # キャラ (小さく)
     s += f'<g transform="translate(-68,-14) scale(0.78,0.78)">\n'
     s += takubo(cx=185, emotion="normal", body_pose="normal")
     s += "</g>\n"
-    # ロゴ
     s += rc(20, 192, 200, 34, P["jacket"], stroke=P["jacket_s"], sw=2, rx=10)
     s += tx(120, 215, "タクボ市長スタンプ", size=15, fill="white")
     s += svg_close()
@@ -843,7 +797,7 @@ def make_tab_icon():
     s += el(48, 37, 47, 36, "#FFE8C0", stroke=P["jacket"], sw=2)
     # 頭だけ表示 (超小)
     s += f'<g transform="translate(-107,-8) scale(0.38,0.38)">\n'
-    hy = 18 + 72
+    hy = 10 + 80  # = 90
     s += _takubo_head(185, hy, "normal")
     s += "</g>\n"
     s += svg_close()
