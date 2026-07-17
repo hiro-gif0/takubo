@@ -6,8 +6,8 @@ echo "=== python-pptx インストール ==="
 pip3 install python-pptx
 
 echo ""
-echo "=== スライド → PPTX 変換 ==="
-python3 slides_to_pptx.py
+echo "=== 台本 → スライド画像 → PPTX（全工程） ==="
+python3 run_all.py "$@"
 
 echo ""
 echo "output/training_material.pptx が生成されました。"

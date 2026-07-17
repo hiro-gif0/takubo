@@ -1,85 +1,69 @@
-# スライド自動変換スクリプト
+# スライド自動生成スクリプト
 
-ChatGPTで生成したスライド画像（PNG/JPG）を、PowerPoint（.pptx）に自動変換します。
-生成された .pptx は Google スライドにそのままアップロードできます。
+`slide_script.md`（スライド台本）から **スライド画像の生成→PPTXの生成** を1コマンドで完結させます。
+ChatGPT等の外部ツール不要。Python（Pillow + python-pptx）のみで動作します。
 
 ---
 
-## フォルダ構成
+## スクリプト一覧
 
 ```
 scripts/
-├─ slides_to_pptx.py     ← メインスクリプト
-├─ setup_and_run.sh      ← Mac/Linux 用（初回セットアップ＋実行）
-├─ setup_and_run.bat     ← Windows 用（初回セットアップ＋実行）
-├─ slides/               ← ここに画像を入れる（自分で作成）
-│  ├─ slide_01.png
-│  ├─ slide_02.png
-│  └─ ...
-└─ output/               ← ここに .pptx が生成される（自動作成）
-   └─ training_material.pptx
+├─ run_all.py                        ← 全工程オーケストレーター（これを実行する）
+├─ generate_slides_from_script.py    ← 台本 → スライド画像生成
+├─ slides_to_pptx.py                 ← スライド画像 → PPTX変換
+├─ setup_and_run.sh                  ← Mac/Linux 用（初回セットアップ＋実行）
+└─ setup_and_run.bat                 ← Windows 用（初回セットアップ＋実行）
 ```
 
 ---
 
 ## 使い方
 
-### 手順1：画像を準備する
-
-ChatGPT で生成したスライド画像を `slides/` フォルダに入れる。
-
-ファイル名は以下の形式にする（アルファベット順で並ぶ名前ならOK）：
+### 前提：フォルダ構成
 
 ```
-slide_01.png
-slide_02.png
-slide_03.png
-...
-slide_10.png
+[作業フォルダ]/              例：examples/260527_独自ダネ研修/
+├─ script/
+│  └─ slide_script.md       ← 事前にClaudeと作る台本（必須）
+├─ slides/                  ← 画像が自動生成される
+└─ output/
+   └─ training_material.pptx ← PPTXが自動生成される
 ```
 
-### 手順2：スクリプトを実行する
+### 手順1：初回セットアップ（1回のみ）
 
-**Mac / Linux の場合：**
-
+**Mac / Linux：**
 ```bash
-bash setup_and_run.sh
+pip3 install python-pptx Pillow
 ```
 
-または初回以降は：
-
-```bash
-python3 slides_to_pptx.py
-```
-
-**Windows の場合：**
-
-`setup_and_run.bat` をダブルクリック
-
-または初回以降は：
-
+**Windows：**
 ```cmd
-python slides_to_pptx.py
+pip install python-pptx Pillow
 ```
 
-### 手順3：出力ファイルを確認する
+### 手順2：台本を用意する
 
-`output/training_material.pptx` が生成される。
+ClaudeにPrompt02（`prompts/02_slide_script_generation.md`）を使って台本を作成し、
+`script/slide_script.md` として保存する。
 
-### 手順4：Google スライドにアップロードする
+### 手順3：1コマンドで実行
 
-1. Google ドライブを開く
-2. `training_material.pptx` をドラッグ＆ドロップ
-3. ファイルを右クリック →「Google スライドで開く」
-
----
-
-## オプション：フォルダ名・出力先を変える
-
+**Mac / Linux：**
 ```bash
-# スライドフォルダと出力ファイルを指定する場合
-python3 slides_to_pptx.py ./my_slides ./output/研修資料_0603.pptx
+python3 scripts/run_all.py examples/260527_独自ダネ研修
 ```
+
+**Windows：**
+```cmd
+python scripts\run_all.py examples\260527_独自ダネ研修
+```
+
+### 手順4：Googleスライドへアップロード
+
+`output/training_material.pptx` を Google ドライブにドラッグ＆ドロップ →
+右クリック →「Google スライドで開く」
 
 ---
 
@@ -88,6 +72,7 @@ python3 slides_to_pptx.py ./my_slides ./output/研修資料_0603.pptx
 | エラーメッセージ | 対処 |
 |---|---|
 | `ModuleNotFoundError: No module named 'pptx'` | `pip3 install python-pptx` を実行する |
-| `エラー：フォルダが見つかりません` | `slides/` フォルダを作成して画像を入れる |
-| `エラー：画像が見つかりません` | 拡張子が `.png` / `.jpg` か確認する |
-| PowerPointで開いたら画像がずれている | 画像サイズが1280×720px か確認する |
+| `ModuleNotFoundError: No module named 'PIL'` | `pip3 install Pillow` を実行する |
+| `エラー：台本ファイルが見つかりません` | `script/slide_script.md` が存在するか確認する |
+| スライドの枚数がおかしい | `run_all.py` は毎回slidesフォルダをクリアするので再実行すればOK |
+| 日本語が表示されない | IPAゴシック等の日本語フォントをインストールする（Mac/Linuxのみ） |
