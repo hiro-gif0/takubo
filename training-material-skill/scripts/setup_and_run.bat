@@ -2,8 +2,8 @@
 REM Windows 用セットアップ＆実行スクリプト
 REM ダブルクリックするだけでOK
 
-echo === python-pptx インストール ===
-pip install python-pptx
+echo === 必要ライブラリのインストール ===
+pip install python-pptx Pillow
 
 echo.
 echo === 台本 → スライド画像 → PPTX（全工程） ===

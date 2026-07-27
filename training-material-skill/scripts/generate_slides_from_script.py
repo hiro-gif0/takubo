@@ -33,10 +33,20 @@ C = {
 }
 
 W, H = 1280, 720
+
+# 日本語フォント候補（Linux / Mac / Windows の優先順）
 FONT_PATHS = [
+    # Linux (IPA)
     "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",
     "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
     "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+    # Mac
+    "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",
+    "/Library/Fonts/ipaexg.ttf",
+    # Windows
+    "C:/Windows/Fonts/msgothic.ttc",
+    "C:/Windows/Fonts/meiryo.ttc",
+    "C:/Windows/Fonts/YuGothR.ttc",
 ]
 
 
@@ -49,6 +59,10 @@ def find_font():
     for p in FONT_PATHS:
         if os.path.exists(p):
             return p
+    # フォントが見つからない場合は警告を出して続行
+    print("  ※ 日本語フォントが見つかりませんでした。テキストが正しく表示されない場合があります。")
+    print("    Mac: brew install font-ipafont  /  Linux: apt install fonts-ipafont-gothic")
+    print("    Windows: 自動的にMSゴシックを使用します（通常は検出されます）")
     return None
 
 

@@ -10,7 +10,9 @@ run_all.py — 全工程を1コマンドで実行するオーケストレータ�
   [作業フォルダ]/
   ├─ script/slide_script.md   ← 事前に用意する
   ├─ slides/                  ← 画像が自動生成される
-  └─ output/                  ← PPTXが自動生成される
+  └─ output/
+     ├─ training_material.pptx  ← PPTX
+     └─ training_material.pdf   ← PDF（Googleスライド不要で配布可能）
 """
 
 import os
@@ -31,6 +33,29 @@ def run(cmd: list[str], label: str):
         sys.exit(result.returncode)
 
 
+def generate_pdf(slides_dir: Path, pdf_path: Path):
+    """スライド画像をPDFに変換する（Pillow使用）"""
+    try:
+        from PIL import Image
+    except ImportError:
+        print("  ※ Pillowが未インストールのためPDF生成をスキップします。")
+        print("    pip3 install Pillow を実行後、再度お試しください。")
+        return
+
+    image_files = sorted(slides_dir.glob("slide_*.png"))
+    if not image_files:
+        print("  ※ スライド画像が見つかりません。PDF生成をスキップします。")
+        return
+
+    images = [Image.open(f).convert("RGB") for f in image_files]
+    images[0].save(
+        pdf_path,
+        save_all=True,
+        append_images=images[1:],
+    )
+    print(f"  {len(images)} 枚 → {pdf_path}")
+
+
 def main():
     # 作業フォルダの決定
     work_dir = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(".").resolve()
@@ -39,6 +64,7 @@ def main():
     slides_dir  = work_dir / "slides"
     output_dir  = work_dir / "output"
     pptx_path   = output_dir / "training_material.pptx"
+    pdf_path    = output_dir / "training_material.pdf"
 
     print(f"作業フォルダ：{work_dir}")
     print(f"台本ファイル：{script_path}")
@@ -65,20 +91,29 @@ def main():
         "工程6：slide_script.md → スライド画像生成"
     )
 
-    # 工程7：PPTX変換
+    # 工程7a：PPTX変換
     run(
         [sys.executable, str(SCRIPTS_DIR / "slides_to_pptx.py"),
          str(slides_dir), str(pptx_path)],
-        "工程7：スライド画像 → PPTX変換"
+        "工程7a：スライド画像 → PPTX変換"
     )
+
+    # 工程7b：PDF生成
+    print(f"\n{'='*50}")
+    print(f"  工程7b：スライド画像 → PDF生成")
+    print(f"{'='*50}")
+    generate_pdf(slides_dir, pdf_path)
 
     print(f"\n{'='*50}")
     print(f"  完了！")
     print(f"{'='*50}")
-    print(f"\n出力ファイル：{pptx_path}")
+    print(f"\n出力ファイル：")
+    print(f"  PPTX → {pptx_path}")
+    if pdf_path.exists():
+        print(f"  PDF  → {pdf_path}")
     print(f"\n次のステップ：")
-    print(f"  Google スライドにアップロード → ドライブにドラッグ＆ドロップ")
-    print(f"  PowerPoint で開く            → .pptx をダブルクリック")
+    print(f"  Google スライドに → PPTX をドライブにドラッグ＆ドロップ")
+    print(f"  そのまま配布する  → PDF をメールや社内共有で送る")
 
 
 if __name__ == "__main__":
