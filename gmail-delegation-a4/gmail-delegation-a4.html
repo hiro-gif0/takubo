@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>社会部Gmail 新しい使い方（代理アクセス）</title>
+<style>
+  :root{
+    --navy:#1c2e4a;
+    --navy-deep:#12213a;
+    --blue-pale:#e7eef8;
+    --blue-mid:#b9cce8;
+    --line:#c7d2e2;
+    --ink:#1f2430;
+    --sub:#4b5568;
+    --warn:#a6480e;
+    --warn-bg:#fdf1e6;
+    --paper:#ffffff;
+    --bg:#f5f6f8;
+    --good:#1c2e4a;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans JP","IPAGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{
+    width:210mm;
+    height:297mm;
+    margin:0 auto;
+    background:var(--paper);
+    padding:11mm 12mm 8mm 12mm;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  /* ---------- Header ---------- */
+  .header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    border-bottom:2.6mm solid var(--navy);
+    padding-bottom:3mm;
+    margin-bottom:4mm;
+  }
+  .header-left{flex:1;}
+  .eyebrow{
+    display:inline-block;
+    font-size:8.6pt;
+    font-weight:700;
+    letter-spacing:.08em;
+    color:var(--paper);
+    background:var(--navy);
+    padding:1.1mm 3mm;
+    border-radius:1mm;
+    margin-bottom:2.2mm;
+  }
+  h1{
+    margin:0 0 1.6mm 0;
+    font-size:22.5pt;
+    line-height:1.25;
+    font-weight:800;
+    color:var(--navy-deep);
+    letter-spacing:.01em;
+  }
+  h1 small{
+    display:block;
+    font-size:13pt;
+    font-weight:700;
+    color:var(--navy);
+    margin-top:1mm;
+  }
+  .subcopy{
+    font-size:11pt;
+    font-weight:700;
+    color:var(--ink);
+    background:var(--blue-pale);
+    display:inline-block;
+    padding:1.6mm 3.4mm;
+    border-radius:1mm;
+    border-left:1.4mm solid var(--navy);
+  }
+  .header-right{
+    text-align:right;
+    font-size:8.6pt;
+    color:var(--sub);
+    white-space:nowrap;
+    padding-left:4mm;
+  }
+
+  /* ---------- Section title ---------- */
+  .sec-title{
+    font-size:11.5pt;
+    font-weight:800;
+    color:var(--navy-deep);
+    margin:0 0 2.4mm 0;
+    display:flex;
+    align-items:center;
+    gap:2mm;
+  }
+  .sec-title .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:5.2mm;height:5.2mm;
+    background:var(--navy);
+    color:#fff;
+    border-radius:50%;
+    font-size:8.6pt;
+    font-weight:800;
+    flex:none;
+  }
+
+  /* ---------- Compare section ---------- */
+  .compare-wrap{margin-bottom:4mm;}
+  .compare{
+    display:flex;
+    gap:4mm;
+    align-items:stretch;
+  }
+  .compare-col{
+    flex:1;
+    border:0.5mm solid var(--line);
+    border-radius:1.5mm;
+    padding:3mm 3.6mm;
+    position:relative;
+    background:#fafbfc;
+  }
+  .compare-col.old{border-color:#d7dbe3;}
+  .compare-col.new{
+    border:0.7mm solid var(--navy);
+    background:var(--blue-pale);
+  }
+  .col-tag{
+    font-size:9pt;
+    font-weight:800;
+    color:#63697a;
+    margin-bottom:1.8mm;
+  }
+  .col-tag.new{color:var(--navy-deep);}
+  .badge-rec{
+    position:absolute;
+    top:-3mm;right:3mm;
+    background:var(--navy);
+    color:#fff;
+    font-size:7.6pt;
+    font-weight:800;
+    padding:0.9mm 2.6mm;
+    border-radius:3mm;
+    letter-spacing:.04em;
+  }
+  .flow{
+    font-size:9pt;
+    line-height:1.55;
+    color:var(--ink);
+    font-weight:600;
+    margin-bottom:1.8mm;
+  }
+  .flow .step-line{display:block;}
+  .flow .arrow{color:var(--sub); font-weight:700;}
+  .old-list{
+    margin:1.6mm 0 0 0;
+    padding-left:4mm;
+    font-size:8pt;
+    line-height:1.5;
+    color:var(--sub);
+  }
+  .old-list li{margin-bottom:0.3mm;}
+  .new-diagram{
+    font-size:8.6pt;
+    line-height:1.5;
+    font-weight:700;
+    color:var(--navy-deep);
+    margin-bottom:1.6mm;
+    white-space:pre;
+    font-family:"Noto Sans JP","IPAGothic",monospace,sans-serif;
+  }
+  .key-point{
+    margin-top:1.8mm;
+    background:var(--navy);
+    color:#fff;
+    font-size:9.2pt;
+    font-weight:800;
+    line-height:1.45;
+    padding:2.2mm 3mm;
+    border-radius:1.2mm;
+  }
+  .plain-explain{
+    margin-top:2.2mm;
+    font-size:8.4pt;
+    line-height:1.45;
+    background:#fff;
+    border:0.35mm dashed var(--blue-mid);
+    border-radius:1.5mm;
+    padding:1.8mm 2.6mm;
+  }
+  .plain-explain b{color:var(--navy-deep);}
+
+  /* ---------- Steps section ---------- */
+  .steps-wrap{
+    margin-bottom:4mm;
+  }
+  .steps{
+    display:flex;
+    gap:2.6mm;
+    align-items:stretch;
+  }
+  .step-card{
+    flex:1;
+    background:var(--blue-pale);
+    border:0.4mm solid var(--blue-mid);
+    border-radius:2mm;
+    padding:2.6mm 2.4mm;
+    text-align:center;
+    position:relative;
+  }
+  .step-num{
+    width:7mm;height:7mm;
+    line-height:7mm;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    font-weight:800;
+    font-size:10pt;
+    margin:0 auto 1.6mm auto;
+  }
+  .step-icon{font-size:15pt; margin-bottom:1mm; display:block;}
+  .step-text{
+    font-size:8.7pt;
+    line-height:1.4;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .step-arrow{
+    align-self:center;
+    font-size:13pt;
+    color:var(--navy);
+    font-weight:800;
+    padding:0 0.6mm;
+  }
+  .steps-callout{
+    margin-top:2.4mm;
+    text-align:center;
+    background:var(--warn-bg);
+    border:0.4mm solid #eccba3;
+    color:var(--warn);
+    font-size:9.6pt;
+    font-weight:800;
+    padding:2mm 3mm;
+    border-radius:1.5mm;
+  }
+
+  /* ---------- Roles strip ---------- */
+  .roles-strip{
+    display:flex;
+    gap:2.6mm;
+    margin-bottom:4mm;
+    font-size:8pt;
+  }
+  .role-chip{
+    flex:1;
+    border:0.35mm solid var(--line);
+    border-radius:1.5mm;
+    padding:1.8mm 2.6mm;
+    background:#fafbfc;
+    line-height:1.4;
+  }
+  .role-chip .role-name{
+    font-weight:800;
+    color:var(--navy-deep);
+    display:block;
+    margin-bottom:0.5mm;
+    font-size:8.4pt;
+  }
+  .role-chip .role-desc{color:var(--sub);}
+
+  /* ---------- Lower grid ---------- */
+  .lower-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:3.2mm;
+    flex:1;
+    min-height:0;
+  }
+  .card{
+    border:0.4mm solid var(--line);
+    border-radius:1.8mm;
+    padding:2.8mm 3.2mm;
+    background:#fafbfc;
+    display:flex;
+    flex-direction:column;
+  }
+  .card h3{
+    margin:0 0 1.6mm 0;
+    font-size:9.6pt;
+    font-weight:800;
+    color:var(--navy-deep);
+    display:flex;
+    align-items:center;
+    gap:1.6mm;
+  }
+  .card h3 .ic{font-size:11pt;}
+  .can-cant{
+    display:flex;
+    gap:2.4mm;
+  }
+  .can-cant > div{flex:1;}
+  .can-cant .label{
+    font-size:7.8pt;
+    font-weight:800;
+    margin-bottom:0.8mm;
+    display:inline-block;
+    padding:0.3mm 1.6mm;
+    border-radius:2.6mm;
+  }
+  .can-cant .label.ok{background:#dfe9fb;color:var(--navy-deep);}
+  .can-cant .label.no{background:#f3e2d7;color:var(--warn);}
+  .can-cant ul{
+    margin:0;
+    padding-left:3.6mm;
+    font-size:7.8pt;
+    line-height:1.5;
+    color:var(--ink);
+  }
+  .card .note{
+    margin-top:1.6mm;
+    font-size:7.2pt;
+    color:var(--sub);
+    line-height:1.4;
+    border-top:0.3mm dashed var(--line);
+    padding-top:1.2mm;
+  }
+  .migrate-flow{
+    display:flex;
+    flex-direction:column;
+    gap:1.2mm;
+    font-size:8pt;
+  }
+  .migrate-flow .mrow{
+    display:flex;
+    align-items:center;
+    gap:1.6mm;
+  }
+  .migrate-flow .mtag{
+    flex:none;
+    width:15mm;
+    font-weight:800;
+    font-size:7.6pt;
+    color:var(--sub);
+  }
+  .migrate-flow .mline{
+    flex:1;
+    font-weight:700;
+  }
+  .migrate-flow .old-row .mline{color:#6b7280;}
+  .migrate-flow .new-row .mline{color:var(--navy-deep);}
+  .migrate-conclusion{
+    margin-top:1.8mm;
+    font-size:8.1pt;
+    font-weight:800;
+    color:var(--navy-deep);
+    background:var(--blue-pale);
+    padding:1.6mm 2.2mm;
+    border-radius:1.2mm;
+  }
+  .ts-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:0 4.5mm;
+  }
+  .ts-item{border-left:0.5mm solid var(--line); padding-left:2.6mm;}
+  .ts-item:first-child{border-left:none; padding-left:0;}
+  .troubleshoot dt{font-size:7.9pt;font-weight:800;color:var(--ink);margin:0 0 0.6mm 0;}
+  .troubleshoot dd{margin:0;font-size:7.6pt;line-height:1.45;color:var(--sub);}
+  .setup-mini{
+    font-size:7.8pt;
+    line-height:1.5;
+    color:var(--ink);
+  }
+  .setup-mini ol{margin:0;padding-left:4mm;}
+  .setup-mini li{margin-bottom:0.4mm;}
+
+  /* ---------- Footer ---------- */
+  .footer{
+    margin-top:2.6mm;
+    padding-top:1.6mm;
+    border-top:0.3mm solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    font-size:6.6pt;
+    color:#8a90a0;
+    line-height:1.4;
+  }
+
+  @page{
+    size:A4 portrait;
+    margin:0;
+  }
+  @media print{
+    html,body{background:#fff;}
+    .page{
+      box-shadow:none;
+      margin:0;
+    }
+  }
+  @media screen{
+    body{padding:8mm 0 20mm 0;}
+    .page{box-shadow:0 2mm 8mm rgba(0,0,0,.15);}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <span class="eyebrow">社会部内 運用変更のお知らせ</span>
+      <h1>社会部Gmail 新しい使い方<small>パスワード共有から「代理アクセス」へ</small></h1>
+      <div class="subcopy">自分の会社アカウントから、社会部のメールを使います</div>
+    </div>
+    <div class="header-right">全部員必読<br>1枚で分かる運用ガイド</div>
+  </div>
+
+  <!-- Compare -->
+  <div class="compare-wrap">
+    <div class="sec-title"><span class="num">1</span>これまで と これから ― 何が変わる？</div>
+    <div class="compare">
+      <div class="compare-col old">
+        <div class="col-tag">これまで（旧方式）</div>
+        <div class="flow">
+          <span class="step-line">社会部Gmail</span>
+          <span class="arrow">↓</span>
+          <span class="step-line">共通のメールアドレス＋共通パスワード</span>
+          <span class="arrow">↓</span>
+          <span class="step-line">部員全員が同じパスワードで直接ログイン</span>
+        </div>
+        <ul class="old-list">
+          <li>パスワードを全員で共有する必要がある</li>
+          <li>誰かが変えると他の人がログインできなくなる</li>
+          <li>異動のたびにパスワードの再共有が必要</li>
+          <li>異動した人がパスワードを知ったままになりやすい</li>
+          <li>誰が操作したか分かりにくい</li>
+        </ul>
+      </div>
+      <div class="compare-col new">
+        <span class="badge-rec">推奨</span>
+        <div class="col-tag new">これから（代理アクセス）</div>
+        <div class="new-diagram">記者Aの会社アカウント ─┐
+記者Bの会社アカウント ─┼→ 社会部Gmail
+記者Cの会社アカウント ─┘</div>
+        <div class="key-point">一般部員は、社会部Gmailのパスワードを知らなくても利用できます</div>
+        <div class="plain-explain">
+          <b>代理アクセスとは？</b>　むずかしい言葉に聞こえますが、意味はシンプルです。<b>「自分の会社アカウントを使って、社会部のメールボックスに入る仕組み」</b>のことです。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps-wrap">
+    <div class="sec-title"><span class="num">2</span>毎日の使い方（4ステップ）</div>
+    <div class="steps">
+      <div class="step-card">
+        <span class="step-icon">💻</span>
+        <div class="step-num">1</div>
+        <div class="step-text">自分の会社Googleアカウントで<br>Gmailを開く</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-card">
+        <span class="step-icon">🙆</span>
+        <div class="step-num">2</div>
+        <div class="step-text">画面右上の<br>プロフィール画像を押す</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-card">
+        <span class="step-icon">🗂️</span>
+        <div class="step-num">3</div>
+        <div class="step-text">一覧から<br>「社会部Gmail」を選ぶ</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-card">
+        <span class="step-icon">📬</span>
+        <div class="step-num">4</div>
+        <div class="step-text">社会部の受信箱が開く<br>いつも通り読む・返信する</div>
+      </div>
+    </div>
+    <div class="steps-callout">社会部共通のパスワードを入力する場面は、通常ありません</div>
+  </div>
+
+  <!-- Roles -->
+  <div class="roles-strip">
+    <div class="role-chip"><span class="role-name">一般部員</span><span class="role-desc">自分の会社アカウントから代理アクセスで利用するだけ</span></div>
+    <div class="role-chip"><span class="role-name">主担当・副担当</span><span class="role-desc">社会部アカウントの管理、利用者（代理人）の登録・削除</span></div>
+    <div class="role-chip"><span class="role-name">情報システム担当</span><span class="role-desc">Google Workspace側の設定、トラブル時の復旧</span></div>
+  </div>
+
+  <!-- Lower grid -->
+  <div class="lower-grid">
+
+    <div class="card">
+      <h3><span class="ic">✅</span>できること／できないこと</h3>
+      <div class="can-cant">
+        <div>
+          <span class="label ok">できる（一般部員）</span>
+          <ul>
+            <li>メールを読む・検索する</li>
+            <li>送る・返信する</li>
+            <li>削除する</li>
+            <li>整理する（フォルダ分けなど）</li>
+          </ul>
+        </div>
+        <div>
+          <span class="label no">できない（管理担当のみ）</span>
+          <ul>
+            <li>社会部アカウントのパスワード変更</li>
+            <li>Googleアカウント全体の設定変更</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note">※この仕組みはGmail（メール）専用です。Google Driveは共有ドライブ、Google Calendarは共有カレンダーを別に使います。</div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">🔁</span>人事異動のとき、何が変わる？</h3>
+      <div class="migrate-flow">
+        <div class="mrow old-row"><span class="mtag">これまで</span><span class="mline">異動 → パスワード変更 → 全員へ再共有 → 各端末で再設定</span></div>
+        <div class="mrow new-row"><span class="mtag">これから</span><span class="mline">異動 → 異動者の利用権限を削除 → 新任者を追加</span></div>
+      </div>
+      <div class="migrate-conclusion">全員のパスワードを変えるのではなく、人の出入りだけを管理します</div>
+      <div class="note">初めて使うとき：①管理担当が利用者を登録 → ②招待メールが届く → ③承認する → ④以後、自分のアカウントから利用（招待には期限があり、反映まで時間がかかる場合があります）</div>
+    </div>
+
+    <div class="card troubleshoot" style="grid-column:1 / span 2;">
+      <h3><span class="ic">🆘</span>困ったときは</h3>
+      <div class="ts-grid">
+        <div class="ts-item">
+          <dt>社会部Gmailが一覧に出てこない</dt>
+          <dd>招待を承認したか確認 → 時間を置いて再確認 → 直らなければ「管理担当」へ</dd>
+        </div>
+        <div class="ts-item">
+          <dt>「社会部Gmail（代理）」の項目自体が見当たらない</dt>
+          <dd>社内のGoogle Workspace設定が必要な場合があります → 「情報システム担当」へ</dd>
+        </div>
+        <div class="ts-item">
+          <dt>パスワードを聞かれた</dt>
+          <dd>一般部員は社会部共通パスワードを使わない運用が原則です → 「管理担当」へ確認</dd>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>※Google Workspaceの社内設定により、利用条件や操作画面が一部異なる場合があります。分からない点は「管理担当」「情報システム担当」へ確認してください。</div>
+    <div style="text-align:right; white-space:nowrap; padding-left:4mm;">出典：Gmail／Google Workspace公式ヘルプ（確認日：2026-08-07）</div>
+  </div>
+
+</div>
+</body>
+</html>
