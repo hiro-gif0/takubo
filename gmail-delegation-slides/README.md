@@ -1,0 +1,43 @@
+# Gmail代理アクセス説明スライド
+
+「社会部Gmailのパスワード共有をやめて、代理アクセスに切り替えます」という説明会で使うスライドです。全12枚（本編10枚＋巻末補足2枚）、説明時間の目安は5〜10分です。
+
+## ファイルの中身
+
+| ファイル・フォルダ | 内容 |
+|---|---|
+| `gmail-delegation-explainer.pptx` | スライド本体（これを開いて発表する） |
+| `gmail-delegation-explainer.pdf` | 印刷・配布用のPDF版（変換済み） |
+| `previews/` | 各スライドを画像にしたもの（内容をざっと確認したいとき用） |
+| `speaker-notes.md` | 発表者用の話す内容メモ（1枚30〜60秒の目安） |
+| `sources.md` | Google公式ヘルプで確認した内容の記録（社会部員が見る必要はありません） |
+| `review-log.md` | 制作時の確認・修正の記録（社会部員が見る必要はありません） |
+
+## PowerPointの開き方・確認方法
+
+1. `gmail-delegation-explainer.pptx` をダブルクリックする
+2. PowerPoint（またはGoogleスライド、LibreOffice Impressなど）が開き、スライドが表示される
+3. 発表者用のメモは、PowerPointの「ノート」表示、または `speaker-notes.md` を見てください
+
+## PDFの確認方法
+
+`gmail-delegation-explainer.pdf` をダブルクリックすれば、PDF閲覧ソフトやブラウザでそのまま開けます。すでに変換済みのため、追加の作業は不要です。
+
+もし文言修正後に自分でPDFを作り直したい場合は、PowerPointで `gmail-delegation-explainer.pptx` を開き、「ファイル」→「エクスポート」→「PDF/XPSドキュメントの作成」で保存し直してください。
+
+## 文言を修正する場所
+
+`gmail-delegation-explainer.pptx` をPowerPoint（またはGoogleスライド、LibreOffice Impress）で開き、直接テキストを書き換えてください。図の位置や色は触らず、文字だけを直せば問題ありません。
+
+修正後は、そのままPowerPointの「発表者ツール」や印刷プレビューで、文字が枠からはみ出していないかを必ず確認してください（特に短いフレーズ用の枠は、長い文章を入れるとはみ出すことがあります）。
+
+## 印刷方法
+
+1. `gmail-delegation-explainer.pptx` または `gmail-delegation-explainer.pdf` を開く
+2. `Ctrl + P`（Macは `Cmd + P`）で印刷
+3. 配布資料として使う場合は、PowerPointの「配布資料」印刷レイアウト（1ページに2〜6枚）を使うと省スペースになります
+
+## 注意事項
+
+- 実際のパスワードや個人名、社内メールアドレスなどの秘密情報は、このファイル一式のどこにも含まれていません。
+- Google Workspaceの社内設定によっては、スライド内の操作画面や表示名が実際の画面と異なる場合があります。分からない点は社内の「管理担当」「情報システム担当」に確認してください。
