@@ -7,16 +7,22 @@
 |---|---|---|---|---|---|
 | 1 | 代理人は委任された相手のGmailで、メールの閲覧・送信・削除ができる | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 3, 5 |
 | 2 | 代理人はチャットができず、パスワードも変更できない | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 5 |
-| 3 | 代理人を追加すると招待メールが届き、承認が必要。招待には有効期限があり、承認後の反映まで時間がかかる場合がある | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 7 |
-| 4 | 代理人の追加・削除は、パソコンのGmail設定「アカウントとインポート」から行う（削除も同じ画面） | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 7, 8 |
-| 5 | 職場・学校アカウントでは代理人を最大1,000人まで登録可能。実務上の目安として同時にアクセスできる代理人は40人程度 | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 11 |
-| 6 | 管理者は管理コンソール（アプリ＞Google Workspace＞Gmail＞ユーザー設定＞メールの委任）で、組織内のユーザーが委任機能を使えるかどうかを設定する | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 7, 11 |
-| 7 | 職場・学校アカウントでは、同じ組織内の別のユーザーにのみ委任できる | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 11 |
-| 8 | Googleグループを代理人として追加できる（例：営業部のGoogleグループを代理人にして、部署全員に1つのGmailへのアクセスを与える）。管理者側の許可設定に依存する | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 8（補足）, 11 |
+| 3 | 代理人を追加すると招待メールが届き、承認が必要。招待には有効期限があり、承認後の反映まで時間がかかる場合がある | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 9, 10, 11, 12 |
+| 4 | 代理人の追加は、パソコンのGmail設定「アカウントとインポート」タブの「アカウントにアクセス権を与える」から、「別のアカウントを追加」→メールアドレス入力、という手順で行う | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 7, 8, 9 |
+| 5 | 職場・学校アカウントでは代理人を最大1,000人まで登録可能。実務上の目安として同時にアクセスできる代理人は40人程度 | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 21（FAQ） |
+| 6 | 管理者は管理コンソール（アプリ＞Google Workspace＞Gmail＞ユーザー設定＞メールの委任）で、組織内のユーザーが委任機能を使えるかどうかを設定する | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 7（前提として言及） |
+| 7 | 職場・学校アカウントでは、同じ組織内の別のユーザーにのみ委任できる | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 21（FAQ） |
+| 8 | Googleグループを代理人として追加できる（例：営業部のGoogleグループを代理人にして、部署全員に1つのGmailへのアクセスを与える）。管理者側の許可設定に依存する | Let users delegate access to a Gmail account（Google Workspace 管理者ヘルプ） | https://support.google.com/a/answer/7223765 | 2026-08-07 | 18（補足）, 21（FAQ） |
 | 9 | メールエイリアス（代替メールアドレス）はGoogleアカウントそのものではないため、代理人として追加できない | Add or delete an alternate email address（Google Workspace 管理者ヘルプ）／Gmail コミュニティの関連スレッド | https://support.google.com/a/answer/33327 | 2026-08-07 | 本紙では非掲載（一般部員には不要な技術詳細と判断） |
-| 10 | 代理人がメールを送信すると、管理者の設定により「代理人の名前も表示される」場合と「アカウント所有者のみ表示」の場合がある | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 12（FAQ） |
-| 11 | 代理人の追加はパソコンのみ対応。代理アカウントの閲覧・送信をスマートフォン版Gmailアプリ（Android／iOS）で行う機能は、2026年半ばにかけて順次展開されている（環境により利用可否が異なる場合がある） | Delegate & collaborate on email（Gmail ヘルプ, Android/iOS版）／Google Workspace Updates ブログ | https://support.google.com/mail/answer/138350 | 2026-08-07 | 12（FAQ） |
-| 12 | 代理アクセスはGmail（メール）専用の仕組みであり、Google DriveやGoogle Calendarには自動的に適用されない。Drive・Calendarで複数人が共同利用する場合は、共有ドライブ・共有カレンダーという別の仕組みを使う | Google Workspace ラーニングセンター（委任に関するページ群）の一般的な整理と、Drive／Calendarの共有機能に関する公式ヘルプの記載内容から確認 | https://support.google.com/mail/answer/138350 | 2026-08-07 | 9 |
+| 10 | 代理人がメールを送信すると、管理者の設定により「代理人の名前も表示される」場合と「アカウント所有者のみ表示」の場合がある | Delegate & collaborate on email（Gmail ヘルプ） | https://support.google.com/mail/answer/138350 | 2026-08-07 | 21（FAQ） |
+| 11 | 代理人の追加はパソコンのみ対応。代理アカウントの閲覧・送信をスマートフォン版Gmailアプリ（Android／iOS）で行う機能は、2026年半ばにかけて順次展開されている（環境により利用可否が異なる場合がある） | Delegate & collaborate on email（Gmail ヘルプ, Android/iOS版）／Google Workspace Updates ブログ | https://support.google.com/mail/answer/138350 | 2026-08-07 | 21（FAQ） |
+| 12 | 代理アクセスはGmail（メール）専用の仕組みであり、Google DriveやGoogle Calendarには自動的に適用されない。Drive・Calendarで複数人が共同利用する場合は、共有ドライブ・共有カレンダーという別の仕組みを使う | Google Workspace ラーニングセンター（委任に関するページ群）の一般的な整理と、Drive／Calendarの共有機能に関する公式ヘルプの記載内容から確認 | https://support.google.com/mail/answer/138350 | 2026-08-07 | 19 |
+
+## 画面イメージ（スライド7〜16）についての重要な注記
+
+ユーザーからの追加依頼を受けて、スライド7〜16では「設定編（管理担当が行う作業）」「承認編（記者が行う作業）」「毎日の使い方編」の3場面を、ブラウザ風の枠で囲んだ画面イメージ図と、円で囲んだハイライト、オレンジ色の「POINT」バーで1操作ずつ解説する構成にした。
+
+これらの画面イメージは、**Googleの実際のスクリーンショットではなく、公式ヘルプに記載された操作手順（上表の#3, #4, #6）をもとに作成したオリジナルの模式図**である。各スライドに「画面イメージ（実際の画面とは異なります）」という注記を必ず入れており、実物の画面デザイン・文言・ボタン配置とは異なる場合がある。ボタン名（「アクセスを確認」「次のステップへ」など）や画面構成は、公式ヘルプの説明文から一般的に想定される表現として作成したものであり、Google側の実際の表記と完全に一致することを保証するものではない。実際に設定・承認作業を行う際は、その時点の画面の指示に従うよう、スライド内でも繰り返し明示している。
 
 ## 断定を避けた項目
 
@@ -26,6 +32,7 @@
 - 招待の有効期限の具体的な日数、承認後の反映時間の具体的な長さ
 - Googleグループを代理人にできるかどうか（管理者の許可設定・組織のドメイン構成に依存）
 - 代理人送信時の差出人表示のされ方（管理者設定・ユーザー設定に依存）
+- 画面イメージ内の具体的なボタン名・画面構成（実際の画面は変更される可能性があるため）
 
 ## 使用しなかった情報源
 

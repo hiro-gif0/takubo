@@ -128,9 +128,56 @@ function footNote(s, text, dark) {
   });
 }
 
+// ---------- tutorial (screen-mockup) helpers ----------
+
+// draws a browser-window style frame; returns the content area below the top bar
+function mockFrame(s, x, y, w, h, addressText) {
+  s.addShape("roundRect", { x, y, w, h, rectRadius: 0.05, fill: { color: "FFFFFF" }, line: { color: "CBD2DC", width: 1.25 } });
+  const barH = 0.38;
+  s.addShape("roundRect", { x, y, w, h: barH, rectRadius: 0.05, fill: { color: "EEF0F3" }, line: { color: "CBD2DC", width: 1.25 } });
+  s.addShape("rect", { x, y: y + barH - 0.08, w, h: 0.08, fill: { color: "EEF0F3" }, line: { type: "none" } });
+  const dots = ["E0897F", "EFC077", "8DC79A"];
+  dots.forEach((c, i) => s.addShape("ellipse", { x: x + 0.16 + i * 0.17, y: y + barH / 2 - 0.045, w: 0.09, h: 0.09, fill: { color: c }, line: { type: "none" } }));
+  s.addShape("roundRect", { x: x + 0.65, y: y + 0.06, w: w - 1.3, h: barH - 0.12, rectRadius: 0.08, fill: { color: "FFFFFF" }, line: { color: "D8DCE3", width: 0.75 } });
+  s.addText(addressText || "mail.google.com", {
+    x: x + 0.65, y: y + 0.06, w: w - 1.3, h: barH - 0.12, fontFace: "Courier New", fontSize: 9,
+    color: SUB, align: "center", valign: "middle", margin: 0,
+  });
+  return { x, y: y + barH, w, h: h - barH };
+}
+
+function screenCaption(s, x, y, w) {
+  s.addText("画面イメージ（実際の画面とは異なります）", {
+    x, y, w, h: 0.24, fontFace: FONT, fontSize: 8.5, italic: true, color: SUB, margin: 0,
+  });
+}
+
+// a bright, bold outline ring/box to circle the important element (TV-flip style)
+function spotlight(s, x, y, w, h, opts = {}) {
+  s.addShape(opts.shape || "roundRect", {
+    x, y, w, h, rectRadius: opts.radius != null ? opts.radius : 0.08,
+    fill: { type: "none" }, line: { color: opts.color || WARN, width: opts.width || 2.75 },
+  });
+}
+
+// bold "POINT" tag bar, used right under/near the mockup to call out what matters
+function pointBar(s, x, y, w, h, text, opts = {}) {
+  const bg = opts.bg || WARN;
+  s.addShape("roundRect", { x, y, w, h, rectRadius: 0.08, fill: { color: bg }, line: { type: "none" } });
+  s.addShape("roundRect", { x: x + 0.15, y: y + h / 2 - 0.145, w: 0.68, h: 0.29, rectRadius: 0.05, fill: { color: "FFFFFF" }, line: { type: "none" } });
+  s.addText("POINT", { x: x + 0.15, y: y + h / 2 - 0.145, w: 0.68, h: 0.29, fontFace: FONT, fontSize: 9.5, bold: true, color: bg, align: "center", valign: "middle", margin: 0 });
+  s.addText(text, { x: x + 0.98, y, w: w - 1.18, h, fontFace: FONT, fontSize: opts.size || 12.5, bold: true, color: "FFFFFF", valign: "middle", margin: 0 });
+}
+
+// small pill top-right indicating which part of the 3-part tutorial we're in
+function partTag(s, text) {
+  s.addShape("roundRect", { x: 6.85, y: 0.42, w: 2.6, h: 0.36, rectRadius: 0.18, fill: { color: ICE }, line: { color: ICE_MID, width: 1 } });
+  s.addText(text, { x: 6.85, y: 0.42, w: 2.6, h: 0.36, fontFace: FONT, fontSize: 10, bold: true, color: NAVY_DEEP, align: "center", valign: "middle", margin: 0 });
+}
+
 // ================= build =================
 const pres = newPres();
-const TOTAL = 12;
+const TOTAL = 21;
 
 // ---------- Slide 1: title ----------
 {
@@ -302,88 +349,342 @@ const TOTAL = 12;
 // ---------- Slide 6: 毎日の使い方 ----------
 {
   const s = baseSlide(pres);
-  kicker(s, "05｜毎日の使い方");
-  title(s, "毎日はどう使う？（4ステップ）");
+  kicker(s, "05｜ここから先の流れ");
+  title(s, "実際の画面で、3つの場面を見ていきます", { size: 26 });
 
-  const steps = [
-    { n: "1", t: "自分の会社Gmail\nを開く" },
-    { n: "2", t: "右上の\nプロフィール画像を押す" },
-    { n: "3", t: "「社会部Gmail\n（代理）」を選ぶ" },
-    { n: "4", t: "社会部の受信箱が開く\n（通常のGmailとほぼ同じ）" },
+  const parts = [
+    { n: "1", t: "設定編", sub: "管理担当が行う作業", who: "社会部Gmail側で\n利用者を登録する" },
+    { n: "2", t: "承認編", sub: "記者が行う作業", who: "届いた招待メールを\n確認して承認する" },
+    { n: "3", t: "毎日の使い方編", sub: "記者が行う作業", who: "自分のアカウントから\n社会部Gmailを開く" },
   ];
-  const boxW = 1.95, boxH = 1.35, gap = 0.28, arrowW = 0.3;
-  const totalW = boxW * 4 + gap * 3 + arrowW * 3;
+  const colW = 2.75, gap = 0.35, colY = 1.95, colH = 2.3;
+  const totalW = colW * 3 + gap * 2;
   let x = (W - totalW) / 2;
-  const y = 1.65;
-  steps.forEach((st, i) => {
-    s.addShape("roundRect", { x, y, w: boxW, h: boxH, rectRadius: 0.1, fill: { color: ICE }, line: { color: ICE_MID, width: 1 } });
-    s.addShape("ellipse", { x: x + boxW / 2 - 0.22, y: y + 0.15, w: 0.44, h: 0.44, fill: { color: NAVY }, line: { type: "none" } });
-    s.addText(st.n, { x: x + boxW / 2 - 0.22, y: y + 0.15, w: 0.44, h: 0.44, fontFace: FONT, fontSize: 16, bold: true, color: WHITE, align: "center", valign: "middle", margin: 0 });
-    s.addText(st.t, { x: x + 0.08, y: y + 0.68, w: boxW - 0.16, h: 0.75, fontFace: FONT, fontSize: 11.5, bold: true, color: INK, align: "center", valign: "top", margin: 0 });
-    x += boxW + gap;
-    if (i < 3) {
-      s.addShape("line", { x, y: y + boxH / 2, w: arrowW, h: 0, line: { color: NAVY, width: 2.5, endArrowType: "triangle" } });
-      x += arrowW + gap - gap; // arrow occupies its own gap slot
+  parts.forEach((p, i) => {
+    s.addShape("roundRect", { x, y: colY, w: colW, h: colH, rectRadius: 0.1, fill: { color: i === 0 ? "F2F3F5" : ICE }, line: { color: i === 0 ? "D8DCE3" : ICE_MID, width: 1 } });
+    s.addShape("ellipse", { x: x + colW / 2 - 0.28, y: colY + 0.22, w: 0.56, h: 0.56, fill: { color: NAVY }, line: { type: "none" } });
+    s.addText(p.n, { x: x + colW / 2 - 0.28, y: colY + 0.22, w: 0.56, h: 0.56, fontFace: FONT, fontSize: 20, bold: true, color: WHITE, align: "center", valign: "middle", margin: 0 });
+    s.addText(p.t, { x: x + 0.1, y: colY + 0.9, w: colW - 0.2, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: NAVY_DEEP, align: "center", margin: 0 });
+    s.addText(p.sub, { x: x + 0.1, y: colY + 1.28, w: colW - 0.2, h: 0.3, fontFace: FONT, fontSize: 10, color: SUB, align: "center", margin: 0 });
+    s.addText(p.who, { x: x + 0.15, y: colY + 1.65, w: colW - 0.3, h: 0.6, fontFace: FONT, fontSize: 10.5, color: INK, align: "center", margin: 0 });
+    if (i < 2) {
+      s.addShape("line", { x: x + colW + 0.04, y: colY + colH / 2, w: gap - 0.08, h: 0, line: { color: SUB, width: 2, endArrowType: "triangle" } });
     }
+    x += colW + gap;
   });
 
-  // screen mockup
-  const mx = 1.3, my = 3.3, mw = 7.4, mh = 1.15;
-  s.addShape("roundRect", { x: mx, y: my, w: mw, h: mh, rectRadius: 0.08, fill: { color: "F5F6F8" }, line: { color: "D8DCE3", width: 1 } });
-  s.addShape("rect", { x: mx, y: my, w: mw, h: 0.34, fill: { color: WHITE }, line: { color: "D8DCE3", width: 0.75 } });
-  s.addShape("ellipse", { x: mx + mw - 0.55, y: my + 0.06, w: 0.22, h: 0.22, fill: { color: ICE_MID }, line: { type: "none" } });
-  s.addText("Gmail － 画面イメージ（実際の画面とは異なります）", {
-    x: mx + 0.15, y: my, w: mw - 1, h: 0.34, fontFace: FONT, fontSize: 9.5, italic: true, color: SUB, valign: "middle", margin: 0,
-  });
-  s.addText("社会部Gmail（代理）", {
-    x: mx + 0.3, y: my + 0.5, w: mw - 0.6, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: NAVY_DEEP, margin: 0,
-  });
-  s.addText("受信箱  ｜  すべてのメール  ｜  送信済み", {
-    x: mx + 0.3, y: my + 0.85, w: mw - 0.6, h: 0.3, fontFace: FONT, fontSize: 10.5, color: SUB, margin: 0,
-  });
-
-  calloutBar(s, "社会部共通パスワードの入力は、原則不要です", 1.3, 4.65, 7.4, 0.5, { size: 15 });
+  calloutBar(s, "画面のイメージ図を見ながら、1つずつ操作を確認していきます", 0.55, 4.55, 8.8, 0.55, { size: 14 });
   pageNum(s, 6, TOTAL);
-  s.addNotes("毎日の使い方はとてもシンプルです。自分の会社Gmailを開いて、右上のプロフィール画像を押して、一覧から「社会部Gmail(代理)」を選ぶ。それだけで社会部の受信箱が開いて、あとはいつも通りのGmailと同じように使えます。ここで見ている画面はイメージ図で、実際の画面とは多少異なりますが、操作の流れは変わりません。そして一番伝えたいのは、社会部共通パスワードを入力する場面は、原則ないということです。");
+  s.addNotes("ここからは、実際の画面のイメージを見ながら、3つの場面を順番に説明します。1つ目は設定編で、管理担当が社会部Gmail側で利用者を登録する作業です。2つ目は承認編で、招待された記者がメールを確認して承認する作業です。3つ目は毎日の使い方編で、実際に自分のアカウントから社会部Gmailを開く操作です。それぞれ、誰がやる作業なのかを意識しながら見てください。");
 }
 
-// ---------- Slide 7: 最初だけ必要な作業 ----------
+// ---------- Slide 7: 設定編 STEP1 ----------
 {
   const s = baseSlide(pres);
-  kicker(s, "06｜最初だけ必要な作業");
-  title(s, "使い始める前に、1回だけの準備");
+  kicker(s, "設定編（管理担当が行う作業） STEP 1 / 3");
+  partTag(s, "① 設定編");
+  title(s, "社会部Gmailの「設定」を開く", { y: 0.88, size: 24 });
 
-  const colY = 1.85, colH = 2.9, colW = 4.2;
-  s.addShape("roundRect", { x: 0.55, y: colY, w: colW, h: colH, rectRadius: 0.1, fill: { color: ICE }, line: { type: "none" } });
-  s.addText("一般部員がすること", { x: 0.8, y: colY + 0.2, w: colW - 0.5, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: NAVY_DEEP, margin: 0 });
-  const gen = ["管理担当から招待メールが届く", "招待メールを開く", "内容を確認して承認する", "そのまま利用を開始する"];
-  let cy = colY + 0.75;
-  gen.forEach((t, i) => {
-    s.addShape("ellipse", { x: 0.8, y: cy, w: 0.34, h: 0.34, fill: { color: NAVY }, line: { type: "none" } });
-    s.addText(String(i + 1), { x: 0.8, y: cy, w: 0.34, h: 0.34, fontFace: FONT, fontSize: 12, bold: true, color: WHITE, align: "center", valign: "middle", margin: 0 });
-    s.addText(t, { x: 1.25, y: cy - 0.03, w: colW - 0.9, h: 0.45, fontFace: FONT, fontSize: 12.5, color: INK, valign: "middle", margin: 0 });
-    cy += 0.52;
-  });
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com");
+  s.addText("Gmail", { x: F.x + 0.25, y: F.y + 0.15, w: 1.3, h: 0.4, fontFace: FONT, fontSize: 16, bold: true, color: NAVY_DEEP, margin: 0 });
+  s.addShape("roundRect", { x: F.x + 1.7, y: F.y + 0.2, w: F.w - 3.3, h: 0.34, rectRadius: 0.17, fill: { color: "F1F2F5" }, line: { type: "none" } });
+  s.addText("メールを検索", { x: F.x + 1.9, y: F.y + 0.2, w: 2.5, h: 0.34, fontFace: FONT, fontSize: 9.5, color: SUB, valign: "middle", margin: 0 });
+  const gx = F.x + F.w - 1.35, gy = F.y + 0.14;
+  s.addText("⚙️", { x: gx, y: gy, w: 0.42, h: 0.42, fontFace: "Noto Color Emoji", fontSize: 18, align: "center", valign: "middle", margin: 0 });
+  s.addShape("ellipse", { x: F.x + F.w - 0.65, y: F.y + 0.14, w: 0.42, h: 0.42, fill: { color: ICE_MID }, line: { type: "none" } });
+  s.addText("社", { x: F.x + F.w - 0.65, y: F.y + 0.14, w: 0.42, h: 0.42, fontFace: FONT, fontSize: 12, bold: true, color: NAVY_DEEP, align: "center", valign: "middle", margin: 0 });
+  s.addShape("line", { x: F.x, y: F.y + 0.7, w: F.w, h: 0, line: { color: "E4E7EC", width: 1 } });
+  for (let i = 0; i < 3; i++) {
+    s.addShape("roundRect", { x: F.x + 0.25, y: F.y + 0.85 + i * 0.42, w: F.w - 0.5, h: 0.3, rectRadius: 0.05, fill: { color: "F5F6F8" }, line: { type: "none" } });
+  }
+  spotlight(s, gx - 0.1, gy - 0.1, 0.62, 0.62, { shape: "ellipse" });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
 
-  const x2 = 0.55 + colW + 0.5;
-  s.addShape("roundRect", { x: x2, y: colY, w: colW, h: colH, rectRadius: 0.1, fill: { color: "F2F3F5" }, line: { type: "none" } });
-  s.addText("管理担当がすること", { x: x2 + 0.25, y: colY + 0.2, w: colW - 0.5, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: SUB, margin: 0 });
-  s.addText("社会部Gmail側の設定で、\n利用する人を登録するだけです。", {
-    x: x2 + 0.25, y: colY + 0.85, w: colW - 0.5, h: 1.0, fontFace: FONT, fontSize: 13, color: INK, margin: 0,
-  });
-  s.addText("詳しい設定手順は巻末の補足ページを\n参照してください。", {
-    x: x2 + 0.25, y: colY + 1.9, w: colW - 0.5, h: 0.8, fontFace: FONT, fontSize: 11, italic: true, color: SUB, margin: 0,
-  });
-
-  footNote(s, "招待には期限があり、承認後の反映まで時間がかかる場合があります。");
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "①ここ（歯車マーク）を押します");
   pageNum(s, 7, TOTAL);
-  s.addNotes("使い始める前に、最初の1回だけ準備が必要です。一般部員がすることは、管理担当から届く招待メールを開いて、承認するだけです。承認すれば、その日から自分のアカウントで利用を開始できます。管理担当の側は、社会部Gmailの設定画面で利用する人を登録する作業がありますが、これは一般部員が気にする必要はありません。招待には期限があるので、届いたら早めに承認してください。");
+  s.addNotes("設定編の1つ目です。管理担当が、社会部Gmailに自分でログインした状態で、画面右上にある歯車マークを押します。これが設定画面への入り口です。");
 }
 
-// ---------- Slide 8: 人事異動が簡単に ----------
+// ---------- Slide 8: 設定編 STEP2 ----------
 {
   const s = baseSlide(pres);
-  kicker(s, "07｜人事異動のとき");
+  kicker(s, "設定編（管理担当が行う作業） STEP 2 / 3");
+  partTag(s, "① 設定編");
+  title(s, "「アカウントとインポート」タブを選ぶ", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com/settings");
+  const tabs = ["全般", "ラベル", "受信トレイ", "アカウントとインポート", "フィルタ"];
+  const tabW = F.w / tabs.length;
+  let tx = F.x;
+  let activeX = tx;
+  tabs.forEach((t, i) => {
+    const active = t === "アカウントとインポート";
+    s.addText(t, {
+      x: tx, y: F.y + 0.12, w: tabW, h: 0.34, fontFace: FONT, fontSize: active ? 10.5 : 9.5, bold: active,
+      color: active ? NAVY_DEEP : SUB, align: "center", valign: "middle", margin: 0,
+    });
+    if (active) activeX = tx;
+    tx += tabW;
+  });
+  s.addShape("line", { x: F.x, y: F.y + 0.5, w: F.w, h: 0, line: { color: "E4E7EC", width: 1 } });
+  s.addShape("line", { x: activeX + 0.1, y: F.y + 0.49, w: tabW - 0.2, h: 0, line: { color: NAVY, width: 2.5 } });
+  s.addText("アカウントにアクセス権を与える", { x: F.x + 0.3, y: F.y + 0.75, w: F.w - 0.6, h: 0.35, fontFace: FONT, fontSize: 12.5, bold: true, color: NAVY_DEEP, margin: 0 });
+  s.addText("委任された人が、あなたに代わってメールを読んだり送信したりできるようになります。", {
+    x: F.x + 0.3, y: F.y + 1.1, w: F.w - 0.6, h: 0.4, fontFace: FONT, fontSize: 9.5, color: SUB, margin: 0,
+  });
+  spotlight(s, activeX - 0.08, F.y + 0.08, tabW + 0.16, 0.42, { radius: 0.05 });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "②「アカウントとインポート」のタブを選びます");
+  pageNum(s, 8, TOTAL);
+  s.addNotes("設定画面が開いたら、上に並んでいるタブの中から「アカウントとインポート」を選びます。ここに、メールへのアクセス権を管理する項目があります。");
+}
+
+// ---------- Slide 9: 設定編 STEP3 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "設定編（管理担当が行う作業） STEP 3 / 3");
+  partTag(s, "① 設定編");
+  title(s, "「別のアカウントを追加」から追加したい人を入力する", { y: 0.88, size: 21 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com/settings");
+  s.addText("アカウントにアクセス権を与える", { x: F.x + 0.3, y: F.y + 0.15, w: F.w - 0.6, h: 0.3, fontFace: FONT, fontSize: 12, bold: true, color: NAVY_DEEP, margin: 0 });
+  s.addShape("roundRect", { x: F.x + 0.3, y: F.y + 0.5, w: 2.4, h: 0.4, rectRadius: 0.06, fill: { color: ICE }, line: { color: NAVY, width: 1.25 } });
+  s.addText("＋ 別のアカウントを追加", { x: F.x + 0.3, y: F.y + 0.5, w: 2.4, h: 0.4, fontFace: FONT, fontSize: 10.5, bold: true, color: NAVY_DEEP, align: "center", valign: "middle", margin: 0 });
+  s.addShape("line", { x: F.x + 0.3, y: F.y + 1.08, w: F.w - 0.6, h: 0, line: { color: "E4E7EC", width: 1 } });
+  s.addText("追加するメールアドレス", { x: F.x + 0.3, y: F.y + 1.22, w: 2.2, h: 0.32, fontFace: FONT, fontSize: 9.5, color: SUB, valign: "middle", margin: 0 });
+  s.addShape("roundRect", { x: F.x + 2.5, y: F.y + 1.18, w: 2.9, h: 0.4, rectRadius: 0.05, fill: { color: "FFFFFF" }, line: { color: "CBD2DC", width: 1 } });
+  s.addText("kisha-a@example.co.jp", { x: F.x + 2.6, y: F.y + 1.18, w: 2.7, h: 0.4, fontFace: "Courier New", fontSize: 9.5, color: INK, valign: "middle", margin: 0 });
+  s.addShape("roundRect", { x: F.x + 5.55, y: F.y + 1.18, w: 1.7, h: 0.4, rectRadius: 0.05, fill: { color: NAVY }, line: { type: "none" } });
+  s.addText("次のステップへ", { x: F.x + 5.55, y: F.y + 1.18, w: 1.7, h: 0.4, fontFace: FONT, fontSize: 9.5, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+  spotlight(s, F.x + 2.45, F.y + 1.13, 4.9, 0.5, { radius: 0.06 });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "③メールアドレスを入力し、「次のステップへ」で招待を送ります");
+  footNote(s, "※画面内のメールアドレスは例です。実際は追加したい記者のメールアドレスを入力します。");
+  pageNum(s, 9, TOTAL);
+  s.addNotes("「別のアカウントを追加」を押すと、メールアドレスを入力する欄が出てきます。追加したい記者のメールアドレスを入力して、「次のステップへ」を押すと、相手に招待メールが送られます。この操作は管理担当だけが行うもので、一般部員が自分で行う必要はありません。");
+}
+
+// ---------- Slide 10: 承認編 STEP1 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "承認編（記者が行う作業） STEP 1 / 3");
+  partTag(s, "② 承認編");
+  title(s, "自分のGmailに、招待メールが届く", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com");
+  const rowH = 0.56;
+  const rows = [
+    { from: "社会部Gmail管理担当 <shakaibu@example.co.jp>", subj: "「メールの委任」の招待が届いています", hot: true },
+    { from: "（他のメール）", subj: "（他のメール）", hot: false },
+    { from: "（他のメール）", subj: "（他のメール）", hot: false },
+  ];
+  rows.forEach((r, i) => {
+    const ry = F.y + 0.15 + i * (rowH + 0.08);
+    s.addShape("roundRect", {
+      x: F.x + 0.2, y: ry, w: F.w - 0.4, h: rowH, rectRadius: 0.05,
+      fill: { color: r.hot ? ICE : "F7F8FA" }, line: { color: r.hot ? NAVY : "E4E7EC", width: r.hot ? 1.25 : 1 },
+    });
+    s.addText(r.from, { x: F.x + 0.4, y: ry + 0.06, w: F.w - 0.8, h: 0.26, fontFace: FONT, fontSize: r.hot ? 10.5 : 9.5, bold: r.hot, color: r.hot ? NAVY_DEEP : "B7BCC6", margin: 0 });
+    s.addText(r.subj, { x: F.x + 0.4, y: ry + 0.3, w: F.w - 0.8, h: 0.24, fontFace: FONT, fontSize: r.hot ? 10 : 9, color: r.hot ? INK : "C7CBD3", margin: 0 });
+    if (r.hot) spotlight(s, F.x + 0.15, ry - 0.05, F.w - 0.3, rowH + 0.1, { radius: 0.06 });
+  });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "①社会部からの招待メールを、受信箱の中から探します");
+  pageNum(s, 10, TOTAL);
+  s.addNotes("管理担当が登録を済ませると、招待された記者自身の受信箱に、社会部からの招待メールが届きます。件名には「メールの委任」に関する案内が入っています。");
+}
+
+// ---------- Slide 11: 承認編 STEP2 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "承認編（記者が行う作業） STEP 2 / 3");
+  partTag(s, "② 承認編");
+  title(s, "メールを開いて、送信元と内容を確認する", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com");
+  s.addText("件名：「メールの委任」の招待が届いています", { x: F.x + 0.3, y: F.y + 0.12, w: F.w - 0.6, h: 0.3, fontFace: FONT, fontSize: 11.5, bold: true, color: NAVY_DEEP, margin: 0 });
+  s.addText("From：社会部Gmail管理担当 <shakaibu@example.co.jp>", { x: F.x + 0.3, y: F.y + 0.44, w: F.w - 0.6, h: 0.26, fontFace: FONT, fontSize: 9.5, color: SUB, margin: 0 });
+  s.addShape("line", { x: F.x + 0.3, y: F.y + 0.76, w: F.w - 0.6, h: 0, line: { color: "E4E7EC", width: 1 } });
+  s.addText("shakaibu@example.co.jp さんが、自分の代わりにメールを\n読んだり送信したりできる人として、あなたを追加しました。", {
+    x: F.x + 0.3, y: F.y + 0.88, w: F.w - 0.6, h: 0.55, fontFace: FONT, fontSize: 10, color: INK, margin: 0,
+  });
+  s.addShape("roundRect", { x: F.x + 0.3, y: F.y + 1.55, w: 1.9, h: 0.4, rectRadius: 0.06, fill: { color: NAVY }, line: { type: "none" } });
+  s.addText("アクセスを確認", { x: F.x + 0.3, y: F.y + 1.55, w: 1.9, h: 0.4, fontFace: FONT, fontSize: 10.5, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+  spotlight(s, F.x + 0.22, F.y + 1.48, 2.05, 0.54, { radius: 0.07 });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "②送信元が「shakaibu@example.co.jp」であることを確認します");
+  pageNum(s, 11, TOTAL);
+  s.addNotes("届いたメールを開いたら、まず送信元が社会部の管理担当（社会部Gmailのアドレス）であることを確認してください。見覚えのない相手からの場合は、絶対に先へ進まず、社会部の管理担当に確認しましょう。内容を確認したら、「アクセスを確認」ボタンを押します。");
+}
+
+// ---------- Slide 12: 承認編 STEP3 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "承認編（記者が行う作業） STEP 3 / 3");
+  partTag(s, "② 承認編");
+  title(s, "「確認」を押せば、承認は完了", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.3, "mail.google.com");
+  // dim background list
+  for (let i = 0; i < 3; i++) {
+    s.addShape("roundRect", { x: F.x + 0.2, y: F.y + 0.15 + i * 0.35, w: F.w - 0.4, h: 0.26, rectRadius: 0.04, fill: { color: "F5F6F8" }, line: { type: "none" } });
+  }
+  // modal dialog
+  const mw = 4.6, mh = 1.55, mx = F.x + (F.w - mw) / 2, my = F.y + 0.35;
+  s.addShape("roundRect", { x: mx, y: my, w: mw, h: mh, rectRadius: 0.08, fill: { color: "FFFFFF" }, line: { color: "CBD2DC", width: 1.5 } });
+  s.addText("確認", { x: mx + 0.25, y: my + 0.15, w: mw - 0.5, h: 0.3, fontFace: FONT, fontSize: 12.5, bold: true, color: NAVY_DEEP, margin: 0 });
+  s.addText("shakaibu@example.co.jp からのメールへの\nアクセスを許可しますか？", {
+    x: mx + 0.25, y: my + 0.48, w: mw - 0.5, h: 0.55, fontFace: FONT, fontSize: 10, color: INK, margin: 0,
+  });
+  s.addShape("roundRect", { x: mx + mw - 3.1, y: my + mh - 0.55, w: 1.35, h: 0.4, rectRadius: 0.06, fill: { color: "F1F2F5" }, line: { color: "D8DCE3", width: 1 } });
+  s.addText("キャンセル", { x: mx + mw - 3.1, y: my + mh - 0.55, w: 1.35, h: 0.4, fontFace: FONT, fontSize: 10, color: SUB, align: "center", valign: "middle", margin: 0 });
+  s.addShape("roundRect", { x: mx + mw - 1.6, y: my + mh - 0.55, w: 1.35, h: 0.4, rectRadius: 0.06, fill: { color: NAVY }, line: { type: "none" } });
+  s.addText("確認", { x: mx + mw - 1.6, y: my + mh - 0.55, w: 1.35, h: 0.4, fontFace: FONT, fontSize: 10.5, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+  spotlight(s, mx + mw - 1.68, my + mh - 0.63, 1.5, 0.54, { radius: 0.07 });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.15, 8.0, 0.5, "③「確認」を押せば、承認は完了です");
+  footNote(s, "反映まで時間がかかる場合があります。すぐに表示されなくても、時間を置いて確認してください。");
+  pageNum(s, 12, TOTAL);
+  s.addNotes("最後に確認ダイアログが出るので、内容に間違いなければ「確認」を押します。これで承認は完了です。承認してすぐに使えないこともあるので、少し時間を置いてから次の使い方編を試してみてください。");
+}
+
+// ---------- Slide 13: 使い方編 STEP1 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "毎日の使い方編（記者が行う作業） STEP 1 / 4");
+  partTag(s, "③ 使い方編");
+  title(s, "①自分の会社Gmailを開く", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com");
+  s.addText("Gmail", { x: F.x + 0.25, y: F.y + 0.15, w: 1.3, h: 0.4, fontFace: FONT, fontSize: 16, bold: true, color: NAVY_DEEP, margin: 0 });
+  s.addShape("ellipse", { x: F.x + F.w - 0.65, y: F.y + 0.14, w: 0.42, h: 0.42, fill: { color: ICE_MID }, line: { type: "none" } });
+  s.addText("記", { x: F.x + F.w - 0.65, y: F.y + 0.14, w: 0.42, h: 0.42, fontFace: FONT, fontSize: 12, bold: true, color: NAVY_DEEP, align: "center", valign: "middle", margin: 0 });
+  s.addShape("line", { x: F.x, y: F.y + 0.7, w: F.w, h: 0, line: { color: "E4E7EC", width: 1 } });
+  const subjects = ["（原稿の確認について）", "（明日の取材予定）", "（総務からのお知らせ）"];
+  subjects.forEach((t, i) => {
+    s.addShape("roundRect", { x: F.x + 0.25, y: F.y + 0.85 + i * 0.42, w: F.w - 0.5, h: 0.3, rectRadius: 0.05, fill: { color: "F5F6F8" }, line: { type: "none" } });
+    s.addText(t, { x: F.x + 0.45, y: F.y + 0.85 + i * 0.42, w: F.w - 0.9, h: 0.3, fontFace: FONT, fontSize: 9, color: SUB, valign: "middle", margin: 0 });
+  });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "①いつも通り、自分の会社Gmailを開きます", { bg: NAVY });
+  pageNum(s, 13, TOTAL);
+  s.addNotes("毎日の使い方編です。まずはいつも通り、自分の会社Googleアカウントで自分のGmailを開きます。特別な操作は何もありません。");
+}
+
+// ---------- Slide 14: 使い方編 STEP2 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "毎日の使い方編（記者が行う作業） STEP 2 / 4");
+  partTag(s, "③ 使い方編");
+  title(s, "②右上のプロフィール画像を押す", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com");
+  s.addText("Gmail", { x: F.x + 0.25, y: F.y + 0.15, w: 1.3, h: 0.4, fontFace: FONT, fontSize: 16, bold: true, color: NAVY_DEEP, margin: 0 });
+  const ax = F.x + F.w - 0.65, ay = F.y + 0.14;
+  s.addShape("ellipse", { x: ax, y: ay, w: 0.42, h: 0.42, fill: { color: ICE_MID }, line: { type: "none" } });
+  s.addText("記", { x: ax, y: ay, w: 0.42, h: 0.42, fontFace: FONT, fontSize: 12, bold: true, color: NAVY_DEEP, align: "center", valign: "middle", margin: 0 });
+  s.addShape("line", { x: F.x, y: F.y + 0.7, w: F.w, h: 0, line: { color: "E4E7EC", width: 1 } });
+  for (let i = 0; i < 3; i++) {
+    s.addShape("roundRect", { x: F.x + 0.25, y: F.y + 0.85 + i * 0.42, w: F.w - 0.5, h: 0.3, rectRadius: 0.05, fill: { color: "F5F6F8" }, line: { type: "none" } });
+  }
+  spotlight(s, ax - 0.1, ay - 0.1, 0.62, 0.62, { shape: "ellipse" });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "②画面右上の、丸いプロフィール画像を押します", { bg: NAVY });
+  pageNum(s, 14, TOTAL);
+  s.addNotes("画面右上にある、丸いプロフィール画像を押します。ここがアカウントを切り替える入り口になります。");
+}
+
+// ---------- Slide 15: 使い方編 STEP3 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "毎日の使い方編（記者が行う作業） STEP 3 / 4");
+  partTag(s, "③ 使い方編");
+  title(s, "③一覧から「社会部Gmail」を選ぶ", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com");
+  const pw = 3.6, ph = 2.1, px = F.x + F.w - pw - 0.3, py = F.y + 0.1;
+  s.addShape("roundRect", { x: px, y: py, w: pw, h: ph, rectRadius: 0.08, fill: { color: "FFFFFF" }, line: { color: "CBD2DC", width: 1.25 } });
+  s.addShape("ellipse", { x: px + 0.2, y: py + 0.18, w: 0.4, h: 0.4, fill: { color: ICE_MID }, line: { type: "none" } });
+  s.addText("記", { x: px + 0.2, y: py + 0.18, w: 0.4, h: 0.4, fontFace: FONT, fontSize: 11, bold: true, color: NAVY_DEEP, align: "center", valign: "middle", margin: 0 });
+  s.addText("記者本人のアカウント（現在ログイン中）", { x: px + 0.7, y: py + 0.18, w: pw - 0.9, h: 0.4, fontFace: FONT, fontSize: 9, bold: true, color: INK, valign: "middle", margin: 0 });
+  s.addShape("line", { x: px + 0.15, y: py + 0.72, w: pw - 0.3, h: 0, line: { color: "E4E7EC", width: 1 } });
+  s.addShape("roundRect", { x: px + 0.1, y: py + 0.82, w: pw - 0.2, h: 0.46, rectRadius: 0.05, fill: { color: ICE }, line: { color: NAVY, width: 1.25 } });
+  s.addText("社会部Gmail", { x: px + 0.3, y: py + 0.82, w: pw - 0.6, h: 0.46, fontFace: FONT, fontSize: 11, bold: true, color: NAVY_DEEP, valign: "middle", margin: 0 });
+  s.addShape("line", { x: px + 0.15, y: py + 1.4, w: pw - 0.3, h: 0, line: { color: "E4E7EC", width: 1 } });
+  s.addText("別のアカウントを追加", { x: px + 0.3, y: py + 1.55, w: pw - 0.6, h: 0.35, fontFace: FONT, fontSize: 9, color: "B7BCC6", valign: "middle", margin: 0 });
+  spotlight(s, px + 0.05, py + 0.77, pw - 0.1, 0.56, { radius: 0.06 });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "③一覧の中から「社会部Gmail」を選びます", { bg: NAVY });
+  pageNum(s, 15, TOTAL);
+  s.addNotes("プロフィール画像を押すと、切り替えられるアカウントの一覧が出てきます。この中から「社会部Gmail」を選びます。承認前はこの項目自体が出てこないので、その場合は招待の承認ができているかを確認してください。");
+}
+
+// ---------- Slide 16: 使い方編 STEP4 ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "毎日の使い方編（記者が行う作業） STEP 4 / 4");
+  partTag(s, "③ 使い方編");
+  title(s, "④社会部の受信箱が開く", { y: 0.88, size: 24 });
+
+  const F = mockFrame(s, 1.0, 1.5, 8.0, 2.55, "mail.google.com");
+  s.addText("社会部Gmail", { x: F.x + 0.25, y: F.y + 0.15, w: 2.0, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: NAVY_DEEP, margin: 0 });
+  s.addShape("roundRect", { x: F.x + F.w - 2.3, y: F.y + 0.17, w: 2.0, h: 0.34, rectRadius: 0.06, fill: { color: ICE }, line: { color: NAVY, width: 1 } });
+  s.addText("代理アクセス中", { x: F.x + F.w - 2.3, y: F.y + 0.17, w: 2.0, h: 0.34, fontFace: FONT, fontSize: 9.5, bold: true, color: NAVY_DEEP, align: "center", valign: "middle", margin: 0 });
+  s.addShape("line", { x: F.x, y: F.y + 0.68, w: F.w, h: 0, line: { color: "E4E7EC", width: 1 } });
+  s.addShape("roundRect", { x: F.x + 0.25, y: F.y + 0.85, w: F.w - 0.5, h: 0.5, rectRadius: 0.05, fill: { color: ICE }, line: { color: ICE_MID, width: 1 } });
+  s.addText("読者から：記事の内容について", { x: F.x + 0.45, y: F.y + 0.85, w: F.w - 0.9, h: 0.5, fontFace: FONT, fontSize: 10, bold: true, color: NAVY_DEEP, valign: "middle", margin: 0 });
+  ["（他のメール）", "（他のメール）"].forEach((t, i) => {
+    s.addShape("roundRect", { x: F.x + 0.25, y: F.y + 1.42 + i * 0.4, w: F.w - 0.5, h: 0.3, rectRadius: 0.05, fill: { color: "F5F6F8" }, line: { type: "none" } });
+  });
+  s.addShape("roundRect", { x: F.x + F.w - 1.55, y: F.y + 0.9, w: 1.15, h: 0.36, rectRadius: 0.06, fill: { color: NAVY }, line: { type: "none" } });
+  s.addText("返信", { x: F.x + F.w - 1.55, y: F.y + 0.9, w: 1.15, h: 0.36, fontFace: FONT, fontSize: 10, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+  spotlight(s, F.x + F.w - 1.62, F.y + 0.84, 1.3, 0.5, { radius: 0.06 });
+  screenCaption(s, F.x, F.y + F.h + 0.06, F.w);
+
+  pointBar(s, 1.0, 4.35, 8.0, 0.5, "④受信箱が開きます。あとはいつも通り読む・返信するだけです", { bg: NAVY });
+  pageNum(s, 16, TOTAL);
+  s.addNotes("社会部Gmailを選ぶと、新しいタブで社会部の受信箱が開きます。ここから先は、普段自分のGmailを使うのとまったく同じ感覚で、メールを読んだり返信したりできます。");
+}
+
+// ---------- Slide 17: 振り返り ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "振り返り");
+  title(s, "3つの作業を振り返ると…");
+
+  const items = [
+    { t: "① 設定編", who: "管理担当", note: "パスワード入力：なし\n（社会部Gmailに直接ログインするのは管理担当のみ）" },
+    { t: "② 承認編", who: "記者", note: "パスワード入力：なし\n（自分のメールで「確認」を押すだけ）" },
+    { t: "③ 使い方編", who: "記者", note: "パスワード入力：なし\n（自分のアカウントのまま切り替えるだけ）" },
+  ];
+  const colW = 2.75, gap = 0.35, colY = 1.8, colH = 2.1;
+  let x = (W - (colW * 3 + gap * 2)) / 2;
+  items.forEach((it) => {
+    s.addShape("roundRect", { x, y: colY, w: colW, h: colH, rectRadius: 0.1, fill: { color: "F7F8FA" }, line: { color: "E4E7EC", width: 1 } });
+    s.addText(it.t, { x: x + 0.15, y: colY + 0.18, w: colW - 0.3, h: 0.35, fontFace: FONT, fontSize: 13.5, bold: true, color: NAVY_DEEP, align: "center", margin: 0 });
+    s.addText("担当：" + it.who, { x: x + 0.15, y: colY + 0.55, w: colW - 0.3, h: 0.3, fontFace: FONT, fontSize: 10, color: SUB, align: "center", margin: 0 });
+    s.addShape("roundRect", { x: x + 0.2, y: colY + 0.95, w: colW - 0.4, h: 1.0, rectRadius: 0.06, fill: { color: GOOD_BG }, line: { type: "none" } });
+    s.addText(it.note, { x: x + 0.32, y: colY + 1.02, w: colW - 0.64, h: 0.88, fontFace: FONT, fontSize: 9, color: NAVY_DEEP, align: "center", margin: 0 });
+    x += colW + gap;
+  });
+
+  calloutBar(s, "社会部共通パスワードを入力する場面は、どの手順にもありませんでした", 0.55, 4.15, 8.8, 0.6, { size: 14.5 });
+  pageNum(s, 17, TOTAL);
+  s.addNotes("設定編・承認編・使い方編の3つを振り返ると、どの場面でも社会部共通パスワードを入力する場面がなかったことが分かります。これが代理アクセスの一番のポイントです。");
+}
+
+// ---------- Slide 18: 人事異動が簡単に ----------
+{
+  const s = baseSlide(pres);
+  kicker(s, "06｜人事異動のとき");
   title(s, "人事異動が、ぐっと簡単になります");
 
   function flowRow(y, tag, tagColor, steps) {
@@ -409,14 +710,14 @@ const TOTAL = 12;
   s.addText("補足（管理担当者向け）：社内の設定によっては、社会部のGoogleグループを代理人として登録し、所属者の管理をさらにまとめて行える場合があります。", {
     x: 0.75, y: 4.2, w: 8.4, h: 0.85, fontFace: FONT, fontSize: 10.5, italic: true, color: SUB, valign: "middle", margin: 0,
   });
-  pageNum(s, 8, TOTAL);
+  pageNum(s, 18, TOTAL);
   s.addNotes("代理アクセスに変えると、人事異動のときが特に楽になります。これまでは、異動のたびにパスワードを変更し、残る全員に新しいパスワードを連絡し、それぞれの端末で再設定してもらう必要がありました。これからは、異動した人の利用権限を削除して、新しく来た人を追加するだけです。パスワードを管理するのではなく、人を管理するという発想の変化だと考えてください。管理担当向けの補足ですが、社内の設定次第では、Googleグループを使ってさらにまとめて管理できる場合もあります。");
 }
 
-// ---------- Slide 9: Gmailだけの仕組み ----------
+// ---------- Slide 19: Gmailだけの仕組み ----------
 {
   const s = baseSlide(pres);
-  kicker(s, "08｜対象範囲の確認");
+  kicker(s, "07｜対象範囲の確認");
   title(s, "これはGmail（メール）だけの仕組みです");
 
   const boxX = 2.3, boxW = 5.4;
@@ -440,11 +741,11 @@ const TOTAL = 12;
 
   calloutBar(s, "代理アクセス＝Gmailのメールを利用するための仕組みです", 0.55, 4.15, 8.8, 0.5, { size: 15 });
   footNote(s, "「代理アクセスを設定すれば、社会部アカウントの全サービスに入れる」は誤解です。");
-  pageNum(s, 9, TOTAL);
+  pageNum(s, 19, TOTAL);
   s.addNotes("最後に誤解しやすい点を確認します。代理アクセスは、あくまでGmail、つまりメールのための仕組みです。社会部のGoogle DriveやGoogle Calendarは、これとは別に、共有ドライブや共有カレンダーという仕組みを使います。「代理アクセスを設定すれば社会部アカウントの全部のサービスに入れる」というのは誤解なので、ここははっきり伝えてください。");
 }
 
-// ---------- Slide 10: まとめ ----------
+// ---------- Slide 20: まとめ ----------
 {
   const s = baseSlide(pres, { dark: true });
   kicker(s, "まとめ", true);
@@ -469,35 +770,11 @@ const TOTAL = 12;
   s.addText("利用できない場合や、設定が表示されない場合は、社会部管理担当または情報システム担当へ。", {
     x: 0.6, y: 5.1, w: 8.8, h: 0.35, fontFace: FONT, fontSize: 10.5, color: "AAB8D2", align: "center", margin: 0,
   });
-  pageNum(s, 10, TOTAL, true);
+  pageNum(s, 20, TOTAL, true);
   s.addNotes("今日覚えていただきたいのは、この3つだけです。1つ、社会部共通パスワードを全員で共有しない。2つ、自分の会社Googleアカウントから社会部Gmailを開く。3つ、異動のときはパスワードではなく利用権限を変更する。これが「Gmail代理アクセス」です。うまく表示されない、設定が見当たらないといった場合は、社会部管理担当か情報システム担当に確認してください。以上で説明を終わります。");
 }
 
-// ---------- Slide 11 (appendix): 管理担当者向け補足 ----------
-{
-  const s = baseSlide(pres);
-  kicker(s, "補足｜管理担当者向け");
-  title(s, "補足：初期設定とGoogleグループの活用", { size: 24 });
-
-  const items = [
-    ["初期設定（情報システム担当）", "Google管理コンソールで「メールの委任」を組織内向けに有効にします。"],
-    ["利用者の登録（主担当・副担当）", "社会部Gmailの設定画面から、利用する人を1人ずつ追加します。"],
-    ["Googleグループの活用（環境による）", "組織内であれば、Googleグループを代理人として追加できる場合があります。所属者へまとめて利用権限を与えられます。"],
-    ["異動時の対応", "異動者の削除と、新任者の追加を、その都度行います。"],
-    ["登録できる人数の目安", "職場アカウントでは代理人を多数登録できますが、実務上の目安として同時に使う人数は数十人程度です。"],
-  ];
-  let y = 1.55;
-  items.forEach(([h, b]) => {
-    s.addText(h, { x: 0.55, y, w: 8.9, h: 0.3, fontFace: FONT, fontSize: 13, bold: true, color: NAVY_DEEP, margin: 0 });
-    s.addText(b, { x: 0.55, y: y + 0.3, w: 8.9, h: 0.32, fontFace: FONT, fontSize: 11, color: INK, margin: 0 });
-    y += 0.68;
-  });
-  footNote(s, "社内のGoogle Workspace設定により、実際の操作画面・利用条件が異なる場合があります。");
-  pageNum(s, 11, TOTAL);
-  s.addNotes("ここからは巻末の補足です。管理担当者・情報システム担当者向けの内容なので、一般部員向けの説明会では読み上げなくて構いません。初期設定は情報システム担当がGoogle管理コンソールで行い、利用者の登録は主担当・副担当が社会部Gmail側で行います。Googleグループの活用や人数の目安は、社内のGoogle Workspace設定によって条件が異なるため、必要に応じて情報システム担当に確認してください。");
-}
-
-// ---------- Slide 12 (appendix): FAQ ----------
+// ---------- Slide 21 (appendix): FAQ ----------
 {
   const s = baseSlide(pres);
   kicker(s, "補足｜よくある質問");
@@ -508,21 +785,23 @@ const TOTAL = 12;
     ["代理で送ったメールは、誰から送ったように見える？", "社内の設定により、代理人の名前も表示される場合と、社会部アカウントのみ表示される場合があります。"],
     ["社会部Gmailが表示されない場合は？", "招待を承認したか確認し、時間を置いて再確認してください。解決しない場合は管理担当へ。"],
     ["Google Driveも代理アクセスで使える？", "使えません。代理アクセスはGmail専用です。Driveは共有ドライブを別に利用します。"],
+    ["代理人は何人まで登録できる？", "職場アカウントでは最大1,000人まで登録できます（実務上の目安として、同時に使うのは数十人程度）。"],
+    ["Googleグループをまとめて代理人にできる？", "社内の設定によっては可能です。可否や方法は情報システム担当に確認してください。"],
   ];
-  const colW = 4.25, colH = 1.55, gapX = 0.3, gapY = 0.25;
+  const colW = 4.25, colH = 1.0, gapX = 0.3, gapY = 0.18;
   let idx = 0;
-  for (let r = 0; r < 2; r++) {
+  for (let r = 0; r < 3; r++) {
     for (let c = 0; c < 2; c++) {
       const [q, a] = faqs[idx++];
       const x = 0.55 + c * (colW + gapX);
-      const y = 1.65 + r * (colH + gapY);
-      s.addShape("roundRect", { x, y, w: colW, h: colH, rectRadius: 0.08, fill: { color: "F7F8FA" }, line: { color: "E4E7EC", width: 1 } });
-      s.addText("Q. " + q, { x: x + 0.2, y: y + 0.15, w: colW - 0.4, h: 0.5, fontFace: FONT, fontSize: 12, bold: true, color: NAVY_DEEP, margin: 0 });
-      s.addText("A. " + a, { x: x + 0.2, y: y + 0.62, w: colW - 0.4, h: colH - 0.75, fontFace: FONT, fontSize: 10.5, color: INK, margin: 0 });
+      const y = 1.55 + r * (colH + gapY);
+      s.addShape("roundRect", { x, y, w: colW, h: colH, rectRadius: 0.07, fill: { color: "F7F8FA" }, line: { color: "E4E7EC", width: 1 } });
+      s.addText("Q. " + q, { x: x + 0.18, y: y + 0.1, w: colW - 0.36, h: 0.34, fontFace: FONT, fontSize: 10.5, bold: true, color: NAVY_DEEP, margin: 0 });
+      s.addText("A. " + a, { x: x + 0.18, y: y + 0.42, w: colW - 0.36, h: colH - 0.48, fontFace: FONT, fontSize: 9, color: INK, margin: 0 });
     }
   }
-  pageNum(s, 12, TOTAL);
-  s.addNotes("最後によくある質問をまとめています。スマートフォンでの利用、送信者表示、社会部Gmailが表示されないときの対処、Driveが使えるかどうか、といった質問です。時間があればこのページも紹介し、なければ「巻末に質問集をまとめているので、あとで見てください」と案内する程度で十分です。");
+  pageNum(s, 21, TOTAL);
+  s.addNotes("最後によくある質問をまとめています。スマートフォンでの利用、送信者表示、社会部Gmailが表示されないときの対処、Driveが使えるかどうか、登録できる人数、Googleグループの活用といった質問です。時間があればこのページも紹介し、なければ「巻末に質問集をまとめているので、あとで見てください」と案内する程度で十分です。");
 }
 
 pres.writeFile({ fileName: "gmail-delegation-explainer.pptx" }).then(() => {
